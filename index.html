@@ -7,44 +7,47 @@
     h1 { color: #006400; text-align: center; }
     .group { border: 1px solid #ccc; padding: 15px; margin: 15px 0; border-radius: 10px; background: #fff; }
     .match {
-      display: flex;
-      justify-content: center;  /* todo centrado horizontalmente */
-      align-items: center;
-      margin: 10px 0;
-    }
-    .team {
-      display: flex;
-      align-items: center;
-    }
-    .team.home {
-      width: 200px;       /* espacio fijo para el equipo local */
-      justify-content: flex-end;
-      gap: 5px;
-    }
-    .team.home img {
-      width: 24px;
-      margin-left: 5px;   /* bandera a la derecha del nombre */
-    }
-    .score {
-      width: 50px;
-      text-align: center;
-      padding: 5px;
-      margin: 0 5px;
-    }
-    .dash {
-      width: 20px;       /* guion centrado */
-      text-align: center;
-      font-weight: bold;
-    }
-    .team.visitor {
-      width: 200px;       /* espacio fijo para el visitante */
-      justify-content: flex-start;
-      gap: 5px;
-    }
-    .team.visitor img {
-      width: 24px;
-      margin-left: 5px;  /* bandera a la derecha */
-    }
+  display: flex;
+  justify-content: center;   
+  align-items: center;
+  margin: 8px 0;
+}
+
+.team.home {
+  display: flex;
+  align-items: center;
+  width: 150px;           
+  justify-content: flex-start;
+  gap: 5px;
+}
+
+.team.home img {
+  width: 24px;
+}
+
+.score {
+  width: 50px;
+  text-align: center;
+}
+
+.dash {
+  width: 20px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.team.visitor {
+  display: flex;
+  align-items: center;
+  width: 150px;         
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.team.visitor img {
+  width: 24px;
+  margin-left: 5px;       
+}
     .date {
       width: 100%;
       text-align: center;
@@ -122,11 +125,11 @@ for(const g in groups){
     div.innerHTML += `
       <div class="date">${m.date}</div>
       <div class="match">
-        <div class="team home">${m.home.name}<img src="${m.home.flag}"></div>
-        <input class="score" type="number" id="${matchId}_scoreA" min="0" placeholder="0">
-        <span class="dash">-</span>
-        <input class="score" type="number" id="${matchId}_scoreB" min="0" placeholder="0">
-        <div class="team visitor">${m.away.name}<img src="${m.away.flag}"></div>
+      <div class="team home"><img src="bandera1.png">País 1</div>
+      <input class="score" type="number" placeholder="0">
+      <span class="dash">-</span>
+      <input class="score" type="number" placeholder="0">
+      <div class="team visitor">País 2<img src="bandera2.png"></div>
       </div>
     `;
   });
