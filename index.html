@@ -6,59 +6,36 @@
     body { font-family: Arial; background: #f0f8ff; padding: 20px; }
     h1 { color: #006400; text-align: center; }
     .group { border: 1px solid #ccc; padding: 15px; margin: 15px 0; border-radius: 10px; background: #fff; }
+    .date { width: 100%; text-align: center; font-size: 0.9em; color: #333; margin-bottom: 5px; }
     .match {
-  display: flex;
-  justify-content: center;   
-  align-items: center;
-  margin: 8px 0;
-}
-
-.team.home {
-  display: flex;
-  align-items: center;
-  width: 150px;           
-  justify-content: flex-start;
-  gap: 5px;
-}
-
-.team.home img {
-  width: 24px;
-}
-
-.score {
-  width: 50px;
-  text-align: center;
-}
-
-.dash {
-  width: 20px;
-  text-align: center;
-  font-weight: bold;
-}
-
-.team.visitor {
-  display: flex;
-  align-items: center;
-  width: 150px;         
-  justify-content: flex-end;
-  gap: 5px;
-}
-
-.team.visitor img {
-  width: 24px;
-  margin-left: 5px;       
-}
-    .date {
-      width: 100%;
-      text-align: center;
-      font-size: 0.9em;
-      color: #333;
-      margin-bottom: 5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 8px 0;
+      gap: 10px;
     }
+    .team.home {
+      display: flex;
+      align-items: center;
+      width: 150px;
+      justify-content: flex-start;
+      gap: 5px;
+    }
+    .team.home img { width: 24px; }
+    .score { width: 50px; text-align: center; }
+    .dash { width: 20px; text-align: center; font-weight: bold; }
+    .team.visitor {
+      display: flex;
+      align-items: center;
+      width: 150px;
+      justify-content: flex-end;
+      gap: 5px;
+    }
+    .team.visitor img { width: 24px; margin-left: 5px; }
+    input::-webkit-inner-spin-button, input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     button { display: block; margin: 20px auto; padding: 10px 15px; cursor: pointer; font-weight: bold; border-radius: 8px; border: none; background: #008000; color: white; }
     button:hover { opacity: 0.8; }
     #bracket { margin-top: 25px; white-space: pre-wrap; font-family: monospace; text-align: center; }
-    input::-webkit-inner-spin-button, input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   </style>
 </head>
 <body>
@@ -88,21 +65,21 @@ const groups = {
 };
 
 const dates = {
-  "A": ["2026-06-11","2026-06-18","2026-06-24"],
-  "B": ["2026-06-12","2026-06-18","2026-06-24"],
-  "C": ["2026-06-13","2026-06-19","2026-06-24"],
-  "D": ["2026-06-13","2026-06-19","2026-06-25"],
-  "E": ["2026-06-14","2026-06-20","2026-06-25"],
-  "F": ["2026-06-14","2026-06-20","2026-06-25"],
-  "G": ["2026-06-15","2026-06-21","2026-06-26"],
-  "H": ["2026-06-15","2026-06-21","2026-06-26"],
-  "I": ["2026-06-16","2026-06-22","2026-06-26"],
-  "J": ["2026-06-16","2026-06-22","2026-06-26"],
-  "K": ["2026-06-17","2026-06-23","2026-06-27"],
-  "L": ["2026-06-17","2026-06-23","2026-06-27"]
+  "A":["2026-06-11","2026-06-18","2026-06-24"],
+  "B":["2026-06-12","2026-06-18","2026-06-24"],
+  "C":["2026-06-13","2026-06-19","2026-06-24"],
+  "D":["2026-06-13","2026-06-19","2026-06-25"],
+  "E":["2026-06-14","2026-06-20","2026-06-25"],
+  "F":["2026-06-14","2026-06-20","2026-06-25"],
+  "G":["2026-06-15","2026-06-21","2026-06-26"],
+  "H":["2026-06-15","2026-06-21","2026-06-26"],
+  "I":["2026-06-16","2026-06-22","2026-06-26"],
+  "J":["2026-06-16","2026-06-22","2026-06-26"],
+  "K":["2026-06-17","2026-06-23","2026-06-27"],
+  "L":["2026-06-17","2026-06-23","2026-06-27"]
 };
 
-// Crear partidos cronológicos
+// Generar partidos cronológicos
 const matches = [];
 for(const g in groups){
   const t = groups[g];
@@ -125,18 +102,18 @@ for(const g in groups){
     div.innerHTML += `
       <div class="date">${m.date}</div>
       <div class="match">
-      <div class="team home"><img src="bandera1.png">País 1</div>
-      <input class="score" type="number" placeholder="0">
-      <span class="dash">-</span>
-      <input class="score" type="number" placeholder="0">
-      <div class="team visitor">País 2<img src="bandera2.png"></div>
+        <div class="team home"><img src="${m.home.flag}">${m.home.name}</div>
+        <input class="score" type="number" id="${matchId}_scoreA" min="0" placeholder="0">
+        <span class="dash">-</span>
+        <input class="score" type="number" id="${matchId}_scoreB" min="0" placeholder="0">
+        <div class="team visitor">${m.away.name}<img src="${m.away.flag}"></div>
       </div>
     `;
   });
   container.appendChild(div);
 }
 
-// Función para calcular clasificados
+// Calcular clasificados
 function calculateQualified(){
   const qualified = [];
   const thirdPlaces = [];
