@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Porra Mundial</title>
+</head>
+<body style="font-family: Arial; padding: 20px;">
+
+<h1>Porra Mundial ⚽</h1>
+
+<input id="name" placeholder="Tu nombre"><br><br>
+
+<div>
+  <p>España vs Brasil</p>
+  <button onclick="select(1, 'España')">España</button>
+  <button onclick="select(1, 'Brasil')">Brasil</button>
+</div>
+
+<div>
+  <p>Argentina vs Francia</p>
+  <button onclick="select(2, 'Argentina')">Argentina</button>
+  <button onclick="select(2, 'Francia')">Francia</button>
+</div>
+
+<h3>Resultado:</h3>
+<pre id="result"></pre>
+
+<script>
+  let predictions = {};
+
+  function select(match, team) {
+    predictions[match] = team;
+    document.getElementById("result").innerText =
+      JSON.stringify(predictions, null, 2);
+  }
+</script>
+
+</body>
+</html>
