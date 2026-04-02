@@ -7,16 +7,16 @@
     h1 { color: #006400; text-align: center; }
     .group { border: 1px solid #ccc; padding: 15px; margin: 15px 0; border-radius: 10px; background: #fff; }
     .match { 
-      display: grid; 
-      grid-template-columns: 200px 60px 20px 60px 1fr; 
-      align-items: center; 
+      display: flex; 
       justify-content: center; 
+      align-items: center; 
       margin: 10px 0; 
-      gap: 10px; 
+      gap: 10px;
     }
+
     .team { display: flex; align-items: center; }
     .team.home img { margin-right: 5px; width: 24px; }
-    .team.visitor { justify-content: flex-start; gap: 5px; }
+    .team.visitor { margin-left: 10px; gap: 5px; }
     .team.visitor img { order: 2; margin-left: 5px; width: 24px; }
     .date { width: 100%; text-align: center; font-size: 0.9em; color: #333; margin-bottom: 5px; }
     input { width: 50px; padding: 5px; text-align: center; }
