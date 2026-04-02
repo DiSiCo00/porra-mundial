@@ -1,38 +1,128 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Porra Mundial</title>
+  <title>Porra Mundial 2026</title>
+  <style>
+    body { font-family: Arial; background: #f0f8ff; padding: 20px; }
+    h1 { color: #006400; }
+    .group { border: 1px solid #ccc; padding: 15px; margin: 15px 0; border-radius: 10px; background: #fff; }
+    .match { display: flex; align-items: center; margin: 8px 0; justify-content: space-between; }
+    .team { display: flex; align-items: center; margin-right: 5px; }
+    .team img { width: 24px; margin-right: 5px; }
+    input { width: 50px; margin: 0 5px; padding: 5px; text-align: center; }
+    button { padding: 10px 15px; margin-top: 15px; cursor: pointer; font-weight: bold; border-radius: 8px; border: none; background: #008000; color: white; }
+    button:hover { opacity: 0.8; }
+    #bracket { margin-top: 25px; white-space: pre-wrap; font-family: monospace; }
+  </style>
 </head>
-<body style="font-family: Arial; padding: 20px;">
+<body>
+<h1>Porra Mundial 2026 ⚽</h1>
+<input id="username" placeholder="Tu nombre"><br><br>
 
-<h1>Porra Mundial ⚽</h1>
+<div id="groups"></div>
 
-<input id="name" placeholder="Tu nombre"><br><br>
+<button onclick="calculateQualified()">Calcular Clasificados → Bracket</button>
 
-<div>
-  <p>España vs Brasil</p>
-  <button onclick="select(1, 'España')">España</button>
-  <button onclick="select(1, 'Brasil')">Brasil</button>
-</div>
-
-<div>
-  <p>Argentina vs Francia</p>
-  <button onclick="select(2, 'Argentina')">Argentina</button>
-  <button onclick="select(2, 'Francia')">Francia</button>
-</div>
-
-<h3>Resultado:</h3>
-<pre id="result"></pre>
+<div id="bracket"></div>
 
 <script>
-  let predictions = {};
+const groups = {
+"A":[{name:"México", flag:"https://flagcdn.com/w20/mx.png"},{name:"Sudáfrica", flag:"https://flagcdn.com/w20/za.png"},{name:"Corea del Sur", flag:"https://flagcdn.com/w20/kr.png"},{name:"República Checa", flag:"https://flagcdn.com/w20/cz.png"}],
+"B":[{name:"Canadá", flag:"https://flagcdn.com/w20/ca.png"},{name:"Bosnia y Herzegovina", flag:"https://flagcdn.com/w20/ba.png"},{name:"Catar", flag:"https://flagcdn.com/w20/qa.png"},{name:"Suiza", flag:"https://flagcdn.com/w20/ch.png"}],
+"C":[{name:"Brasil", flag:"https://flagcdn.com/w20/br.png"},{name:"Marruecos", flag:"https://flagcdn.com/w20/ma.png"},{name:"Haití", flag:"https://flagcdn.com/w20/ht.png"},{name:"Escocia", flag:"https://flagcdn.com/w20/gb-sct.png"}],
+"D":[{name:"EEUU", flag:"https://flagcdn.com/w20/us.png"},{name:"Paraguay", flag:"https://flagcdn.com/w20/py.png"},{name:"Australia", flag:"https://flagcdn.com/w20/au.png"},{name:"Turquía", flag:"https://flagcdn.com/w20/tr.png"}],
+"E":[{name:"Alemania", flag:"https://flagcdn.com/w20/de.png"},{name:"Curaçao", flag:"https://flagcdn.com/w20/cw.png"},{name:"Costa de Marfil", flag:"https://flagcdn.com/w20/ci.png"},{name:"Ecuador", flag:"https://flagcdn.com/w20/ec.png"}],
+"F":[{name:"Países Bajos", flag:"https://flagcdn.com/w20/nl.png"},{name:"Japón", flag:"https://flagcdn.com/w20/jp.png"},{name:"Suecia", flag:"https://flagcdn.com/w20/se.png"},{name:"Túnez", flag:"https://flagcdn.com/w20/tn.png"}],
+"G":[{name:"Bélgica", flag:"https://flagcdn.com/w20/be.png"},{name:"Egipto", flag:"https://flagcdn.com/w20/eg.png"},{name:"Irán", flag:"https://flagcdn.com/w20/ir.png"},{name:"Nueva Zelanda", flag:"https://flagcdn.com/w20/nz.png"}],
+"H":[{name:"España", flag:"https://flagcdn.com/w20/es.png"},{name:"Cabo Verde", flag:"https://flagcdn.com/w20/cv.png"},{name:"Arabia Saudita", flag:"https://flagcdn.com/w20/sa.png"},{name:"Uruguay", flag:"https://flagcdn.com/w20/uy.png"}],
+"I":[{name:"Francia", flag:"https://flagcdn.com/w20/fr.png"},{name:"Senegal", flag:"https://flagcdn.com/w20/sn.png"},{name:"Irak", flag:"https://flagcdn.com/w20/iq.png"},{name:"Noruega", flag:"https://flagcdn.com/w20/no.png"}],
+"J":[{name:"Argentina", flag:"https://flagcdn.com/w20/ar.png"},{name:"Argelia", flag:"https://flagcdn.com/w20/dz.png"},{name:"Austria", flag:"https://flagcdn.com/w20/at.png"},{name:"Jordania", flag:"https://flagcdn.com/w20/jo.png"}],
+"K":[{name:"Portugal", flag:"https://flagcdn.com/w20/pt.png"},{name:"República Democrática del Congo", flag:"https://flagcdn.com/w20/cd.png"},{name:"Uzbekistán", flag:"https://flagcdn.com/w20/uz.png"},{name:"Colombia", flag:"https://flagcdn.com/w20/co.png"}],
+"L":[{name:"Inglaterra", flag:"https://flagcdn.com/w20/gb-eng.png"},{name:"Croacia", flag:"https://flagcdn.com/w20/hr.png"},{name:"Ghana", flag:"https://flagcdn.com/w20/gh.png"},{name:"Panamá", flag:"https://flagcdn.com/w20/pa.png"}]
+};
 
-  function select(match, team) {
-    predictions[match] = team;
-    document.getElementById("result").innerText =
-      JSON.stringify(predictions, null, 2);
-  } 
+// Generar partidos
+const groupsDiv = document.getElementById("groups");
+for(const g in groups){
+  const teams = groups[g];
+  const groupDiv = document.createElement("div");
+  groupDiv.className = "group";
+  groupDiv.innerHTML = `<h2>Grupo ${g}</h2>`;
+  for(let i=0;i<teams.length;i++){
+    for(let j=i+1;j<teams.length;j++){
+      const matchId = g + "_" + i + "_" + j;
+      const matchHTML = `
+        <div class="match">
+          <div class="team"><img src="${teams[i].flag}">${teams[i].name}</div>
+          <input type="number" id="${matchId}_scoreA" min="0" placeholder="0">
+          <span> - </span>
+          <input type="number" id="${matchId}_scoreB" min="0" placeholder="0">
+          <div class="team"><img src="${teams[j].flag}">${teams[j].name}</div>
+        </div>
+      `;
+      groupDiv.innerHTML += matchHTML;
+    }
+  }
+  groupsDiv.appendChild(groupDiv);
+}
+
+// Calcular clasificados
+function calculateQualified(){
+  const qualified = [];
+  const thirdPlaces = [];
+
+  for(const g in groups){
+    const teams = groups[g];
+    const points = {};
+    const goalsFor = {};
+    const goalsAgainst = {};
+    teams.forEach(t => points[t.name]=0);
+    teams.forEach(t => goalsFor[t.name]=0);
+    teams.forEach(t => goalsAgainst[t.name]=0);
+
+    for(let i=0;i<teams.length;i++){
+      for(let j=i+1;j<teams.length;j++){
+        const matchId = g + "_" + i + "_" + j;
+        const scoreA = parseInt(document.getElementById(matchId+"_scoreA").value)||0;
+        const scoreB = parseInt(document.getElementById(matchId+"_scoreB").value)||0;
+        goalsFor[teams[i].name] += scoreA;
+        goalsAgainst[teams[i].name] += scoreB;
+        goalsFor[teams[j].name] += scoreB;
+        goalsAgainst[teams[j].name] += scoreA;
+
+        if(scoreA>scoreB) points[teams[i].name] +=3;
+        else if(scoreB>scoreA) points[teams[j].name] +=3;
+        else points[teams[i].name]+=1, points[teams[j].name]+=1;
+      }
+    }
+
+    const sorted = teams.slice().sort((a,b)=>{
+      const diffA = goalsFor[a.name]-goalsAgainst[a.name];
+      const diffB = goalsFor[b.name]-goalsAgainst[b.name];
+      if(points[b.name]!==points[a.name]) return points[b.name]-points[a.name];
+      else return diffB-diffA;
+    });
+
+    qualified.push(sorted[0].name, sorted[1].name);
+    thirdPlaces.push({name:sorted[2].name, points:points[sorted[2].name], diff:goalsFor[sorted[2].name]-goalsAgainst[sorted[2].name]});
+  }
+
+  // Top 8 mejores terceros
+  thirdPlaces.sort((a,b)=>{
+    if(b.points!==a.points) return b.points-a.points;
+    else return b.diff - a.diff;
+  });
+  const topThirds = thirdPlaces.slice(0,8).map(t=>t.name);
+  const all32 = qualified.concat(topThirds);
+
+  displayBracket(all32);
+}
+
+function displayBracket(teams){
+  const bracketDiv = document.getElementById("bracket");
+  bracketDiv.innerHTML = "<h2>32 Clasificados → Bracket de Eliminación</h2>";
+  bracketDiv.innerHTML += "<pre>"+JSON.stringify(teams,null,2)+"</pre>";
+}
 </script>
-
 </body>
 </html>
