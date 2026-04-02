@@ -8,14 +8,16 @@
     .group { border: 1px solid #ccc; padding: 15px; margin: 15px 0; border-radius: 10px; background: #fff; }
     .match { 
       display: grid; 
-      grid-template-columns: 200px 60px 20px 60px 200px; 
+      grid-template-columns: 200px 60px 20px 60px 1fr; 
       align-items: center; 
       justify-content: center; 
       margin: 10px 0; 
       gap: 10px; 
     }
     .team { display: flex; align-items: center; }
-    .team img { width: 24px; margin-right: 5px; }
+    .team.home img { margin-right: 5px; width: 24px; }
+    .team.visitor { justify-content: flex-start; gap: 5px; }
+    .team.visitor img { order: 2; margin-left: 5px; width: 24px; }
     .date { width: 100%; text-align: center; font-size: 0.9em; color: #333; margin-bottom: 5px; }
     input { width: 50px; padding: 5px; text-align: center; }
     span { text-align: center; font-weight: bold; }
@@ -35,7 +37,6 @@
 <div id="bracket"></div>
 
 <script>
-// Equipos por grupo
 const groups = {
 "A":[{name:"México", flag:"https://flagcdn.com/w20/mx.png"},{name:"Sudáfrica", flag:"https://flagcdn.com/w20/za.png"},{name:"Corea del Sur", flag:"https://flagcdn.com/w20/kr.png"},{name:"República Checa", flag:"https://flagcdn.com/w20/cz.png"}],
 "B":[{name:"Canadá", flag:"https://flagcdn.com/w20/ca.png"},{name:"Bosnia y Herzegovina", flag:"https://flagcdn.com/w20/ba.png"},{name:"Catar", flag:"https://flagcdn.com/w20/qa.png"},{name:"Suiza", flag:"https://flagcdn.com/w20/ch.png"}],
@@ -51,7 +52,6 @@ const groups = {
 "L":[{name:"Inglaterra", flag:"https://flagcdn.com/w20/gb-eng.png"},{name:"Croacia", flag:"https://flagcdn.com/w20/hr.png"},{name:"Ghana", flag:"https://flagcdn.com/w20/gh.png"},{name:"Panamá", flag:"https://flagcdn.com/w20/pa.png"}]
 };
 
-// Fechas por jornada según grupo
 const dates = {
   "A": ["2026-06-11","2026-06-18","2026-06-24"],
   "B": ["2026-06-12","2026-06-18","2026-06-24"],
@@ -67,7 +67,7 @@ const dates = {
   "L": ["2026-06-17","2026-06-23","2026-06-27"]
 };
 
-// Generar partidos ordenados cronológicamente
+// Generar partidos cronológicos
 const matches = [];
 for(const g in groups){
   const t = groups[g];
@@ -78,9 +78,8 @@ for(const g in groups){
   matches.push({group:g, date:dates[g][2], home:t[3], away:t[0]});
   matches.push({group:g, date:dates[g][2], home:t[1], away:t[2]});
 }
-matches.sort((a,b) => new Date(a.date) - new Date(b.date));
+matches.sort((a,b)=>new Date(a.date)-new Date(b.date));
 
-// Crear HTML sin duplicar grupos
 const container = document.getElementById("groups");
 for(const g in groups){
   const div = document.createElement("div");
@@ -88,16 +87,16 @@ for(const g in groups){
   div.className = "group";
   div.innerHTML = `<h2 style="text-align:center;">Grupo ${g}</h2>`;
   
-  matches.filter(m => m.group===g).forEach(m => {
-    const matchId = m.group + "_" + m.home.name.replace(/\s/g,'') + "_" + m.away.name.replace(/\s/g,'');
+  matches.filter(m=>m.group===g).forEach(m=>{
+    const matchId = m.group+"_"+m.home.name.replace(/\s/g,'')+"_"+m.away.name.replace(/\s/g,'');
     div.innerHTML += `
       <div class="date">${m.date}</div>
       <div class="match">
-        <div class="team"><img src="${m.home.flag}">${m.home.name}</div>
+        <div class="team home"><img src="${m.home.flag}">${m.home.name}</div>
         <input type="number" id="${matchId}_scoreA" min="0" placeholder="0">
         <span>-</span>
         <input type="number" id="${matchId}_scoreB" min="0" placeholder="0">
-        <div class="team"><img src="${m.away.flag}">${m.away.name}</div>
+        <div class="team visitor">${m.away.name}<img src="${m.away.flag}"></div>
       </div>
     `;
   });
@@ -105,7 +104,7 @@ for(const g in groups){
   container.appendChild(div);
 }
 
-// Funciones de cálculo
+// Calcular clasificados
 function calculateQualified(){
   const qualified = [];
   const thirdPlaces = [];
