@@ -4,21 +4,21 @@
   <title>Porra Mundial 2026</title>
   <style>
     body { font-family: Arial; background: #f0f8ff; padding: 20px; }
-    h1 { color: #006400; }
+    h1 { color: #006400; text-align: center; }
     .group { border: 1px solid #ccc; padding: 15px; margin: 15px 0; border-radius: 10px; background: #fff; }
-    .match { display: flex; align-items: center; margin: 8px 0; justify-content: space-between; }
-    .team { display: flex; align-items: center; margin-right: 5px; }
+    .match { display: flex; align-items: center; justify-content: center; margin: 10px 0; gap: 15px; }
+    .team { display: flex; align-items: center; }
     .team img { width: 24px; margin-right: 5px; }
-    .date { width: 120px; font-size: 0.9em; color: #333; }
-    input { width: 50px; margin: 0 5px; padding: 5px; text-align: center; }
-    button { padding: 10px 15px; margin-top: 15px; cursor: pointer; font-weight: bold; border-radius: 8px; border: none; background: #008000; color: white; }
+    .date { width: 100%; text-align: center; font-size: 0.9em; color: #333; margin-bottom: 5px; }
+    input { width: 50px; padding: 5px; text-align: center; }
+    button { display: block; margin: 20px auto; padding: 10px 15px; cursor: pointer; font-weight: bold; border-radius: 8px; border: none; background: #008000; color: white; }
     button:hover { opacity: 0.8; }
-    #bracket { margin-top: 25px; white-space: pre-wrap; font-family: monospace; }
+    #bracket { margin-top: 25px; white-space: pre-wrap; font-family: monospace; text-align: center; }
   </style>
 </head>
 <body>
 <h1>Porra Mundial 2026 ⚽</h1>
-<input id="username" placeholder="Tu nombre"><br><br>
+<input id="username" placeholder="Tu nombre" style="display:block; margin:0 auto 20px auto;"><br>
 
 <div id="groups"></div>
 
@@ -59,11 +59,10 @@ const dates = {
   "L": ["2026-06-17","2026-06-23","2026-06-27"]
 };
 
-// Generar encuentros
+// Generar partidos con fechas
 const matches = [];
 for(const g in groups){
   const t = groups[g];
-  // 3 partidos por grupo
   matches.push({group:g, date:dates[g][0], home:t[0], away:t[1]});
   matches.push({group:g, date:dates[g][0], home:t[2], away:t[3]});
   matches.push({group:g, date:dates[g][1], home:t[0], away:t[2]});
@@ -72,10 +71,9 @@ for(const g in groups){
   matches.push({group:g, date:dates[g][2], home:t[1], away:t[2]});
 }
 
-// Ordenar cronológicamente por fecha
 matches.sort((a,b) => new Date(a.date) - new Date(b.date));
 
-// Crear HTML ordenado
+// Crear HTML centrado
 const container = document.getElementById("groups");
 let currentGroup="";
 matches.forEach(m => {
@@ -84,23 +82,23 @@ matches.forEach(m => {
     const div = document.createElement("div");
     div.id = "group_"+currentGroup;
     div.className = "group";
-    div.innerHTML = `<h2>Grupo ${currentGroup}</h2>`;
+    div.innerHTML = `<h2 style="text-align:center;">Grupo ${currentGroup}</h2>`;
     container.appendChild(div);
   }
   const matchId = m.group + "_" + m.home.name.replace(/\s/g,'') + "_" + m.away.name.replace(/\s/g,'');
   document.getElementById("group_"+currentGroup).innerHTML += `
     <div class="match">
-      <div class="date">${m.date}</div>
       <div class="team"><img src="${m.home.flag}">${m.home.name}</div>
       <input type="number" id="${matchId}_scoreA" min="0" placeholder="0">
-      <span> - </span>
+      <span>-</span>
       <input type="number" id="${matchId}_scoreB" min="0" placeholder="0">
       <div class="team"><img src="${m.away.flag}">${m.away.name}</div>
     </div>
+    <div class="date">${m.date}</div>
   `;
 });
 
-// Resto de funciones (sin cambios)
+// Funciones de cálculo (igual que antes)
 function calculateQualified(){
   const qualified = [];
   const thirdPlaces = [];
@@ -108,8 +106,6 @@ function calculateQualified(){
     const teams = groups[g];
     const points={}, gf={}, ga={};
     teams.forEach(t=>{points[t.name]=0; gf[t.name]=0; ga[t.name]=0;});
-    // Calcular
-    const fdates = dates[g];
     teams.forEach((A,i)=>{
       teams.forEach((B,j)=>{ if(j>i){
         const id = g+"_"+A.name.replace(/\s/g,'')+"_"+B.name.replace(/\s/g,'');
@@ -122,9 +118,7 @@ function calculateQualified(){
         else {points[A.name]++; points[B.name]++;}
       }});
     });
-    const sorted = teams.slice().sort((a,b)=>(
-      points[b.name]-points[a.name] || (gf[b.name]-ga[b.name])-(gf[a.name]-ga[a.name])
-    ));
+    const sorted = teams.slice().sort((a,b)=>points[b.name]-points[a.name] || (gf[b.name]-ga[b.name])-(gf[a.name]-ga[a.name]));
     qualified.push(sorted[0].name,sorted[1].name);
     thirdPlaces.push({name:sorted[2].name, pts:points[sorted[2].name], diff:gf[sorted[2].name]-ga[sorted[2].name]});
   }
