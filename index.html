@@ -6,11 +6,12 @@
     body { font-family: Arial; background: #f0f8ff; padding: 20px; }
     h1 { color: #006400; text-align: center; }
     .group { border: 1px solid #ccc; padding: 15px; margin: 15px 0; border-radius: 10px; background: #fff; }
-    .match { display: flex; align-items: center; justify-content: center; margin: 10px 0; gap: 15px; }
+    .match { display: flex; align-items: center; justify-content: center; margin: 10px 0; gap: 10px; }
     .team { display: flex; align-items: center; }
     .team img { width: 24px; margin-right: 5px; }
     .date { width: 100%; text-align: center; font-size: 0.9em; color: #333; margin-bottom: 5px; }
     input { width: 50px; padding: 5px; text-align: center; }
+    .score { display: flex; align-items: center; gap: 5px; font-weight: bold; }
     button { display: block; margin: 20px auto; padding: 10px 15px; cursor: pointer; font-weight: bold; border-radius: 8px; border: none; background: #008000; color: white; }
     button:hover { opacity: 0.8; }
     #bracket { margin-top: 25px; white-space: pre-wrap; font-family: monospace; text-align: center; }
@@ -59,7 +60,7 @@ const dates = {
   "L": ["2026-06-17","2026-06-23","2026-06-27"]
 };
 
-// Generar partidos con fechas
+// Generar partidos y ordenarlos cronológicamente
 const matches = [];
 for(const g in groups){
   const t = groups[g];
@@ -73,30 +74,32 @@ for(const g in groups){
 
 matches.sort((a,b) => new Date(a.date) - new Date(b.date));
 
-// Crear HTML centrado
+// Crear HTML sin duplicar grupos
 const container = document.getElementById("groups");
-let currentGroup="";
-matches.forEach(m => {
-  if(m.group!==currentGroup){
-    currentGroup = m.group;
-    const div = document.createElement("div");
-    div.id = "group_"+currentGroup;
-    div.className = "group";
-    div.innerHTML = `<h2 style="text-align:center;">Grupo ${currentGroup}</h2>`;
-    container.appendChild(div);
-  }
-  const matchId = m.group + "_" + m.home.name.replace(/\s/g,'') + "_" + m.away.name.replace(/\s/g,'');
-  document.getElementById("group_"+currentGroup).innerHTML += `
-    <div class="match">
-      <div class="team"><img src="${m.home.flag}">${m.home.name}</div>
-      <input type="number" id="${matchId}_scoreA" min="0" placeholder="0">
-      <span>-</span>
-      <input type="number" id="${matchId}_scoreB" min="0" placeholder="0">
-      <div class="team"><img src="${m.away.flag}">${m.away.name}</div>
-    </div>
-    <div class="date">${m.date}</div>
-  `;
-});
+for(const g in groups){
+  const div = document.createElement("div");
+  div.id = "group_"+g;
+  div.className = "group";
+  div.innerHTML = `<h2 style="text-align:center;">Grupo ${g}</h2>`;
+  
+  matches.filter(m => m.group===g).forEach(m => {
+    const matchId = m.group + "_" + m.home.name.replace(/\s/g,'') + "_" + m.away.name.replace(/\s/g,'');
+    div.innerHTML += `
+      <div class="date">${m.date}</div>
+      <div class="match">
+        <div class="team"><img src="${m.home.flag}">${m.home.name}</div>
+        <div class="score">
+          <input type="number" id="${matchId}_scoreA" min="0" placeholder="0">
+          <span>-</span>
+          <input type="number" id="${matchId}_scoreB" min="0" placeholder="0">
+        </div>
+        <div class="team"><img src="${m.away.flag}">${m.away.name}</div>
+      </div>
+    `;
+  });
+
+  container.appendChild(div);
+}
 
 // Funciones de cálculo (igual que antes)
 function calculateQualified(){
