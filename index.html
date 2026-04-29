@@ -103,39 +103,93 @@ for(const g in groups){
       <div class="date">${m.date}</div>
       <div class="match">
         <div class="team home"><img src="${m.home.flag}">${m.home.name}</div>
-        <input class="score" type="number" id="${matchId}_scoreA" min="0" placeholder="0">
-        <span class="dash">-</span>
-        <input class="score" type="number" id="${matchId}_scoreB" min="0" placeholder="0">
+        <select id="${matchId}_result" class="score">
+        <option value="">-</option>
+        <option value="1">1</option>
+        <option value="X">X</option>
+        <option value="2">2</option>
+        </select>
         <div class="team visitor">${m.away.name}<img src="${m.away.flag}"></div>
       </div>
     `;
+    //<input class="score" type="number" id="${matchId}_scoreA" min="0" placeholder="0">
+    //<span class="dash">-</span>
+    //<input class="score" type="number" id="${matchId}_scoreB" min="0" placeholder="0">
   });
   container.appendChild(div);
 }
 
+function detectTies(sorted, points){//, gf, ga
+        const ties = [];
+
+        for(let i = 0; i < sorted.length - 1; i++){
+        const a = sorted[i];
+        const b = sorted[i+1];
+
+        if(
+          points[a.name] === points[b.name] //&& (gf[a.name]-ga[a.name]) === (gf[b.name]-ga[b.name])
+        ){
+      ties.push([a.name, b.name]);
+      }
+      }
+    return ties;
+    }
+
+  function resolveTie(group, ties, sorted){
+  const container = document.getElementById("bracket");
+
+  container.innerHTML += `<h3>Empate en Grupo ${group}</h3>`;
+
+  ties.forEach((pair, index) => {
+    const id = `tie_${group}_${index}`;
+
+    container.innerHTML += `
+      <div>
+        ${pair[0]} vs ${pair[1]}
+        <select id="${id}">
+          <option value="${pair[0]}">${pair[0]}</option>
+          <option value="${pair[1]}">${pair[1]}</option>
+        </select>
+      </div>
+    `;
+  });
+
+  container.innerHTML += `<button onclick="applyTieBreak('${group}')">Confirmar desempate</button>`;
+}
+  
 // Calcular clasificados
 function calculateQualified(){
   const qualified = [];
   const thirdPlaces = [];
   for(const g in groups){
     const teams = groups[g];
-    const points={}, gf={}, ga={};
+    const points={},// gf={}, ga={};
     teams.forEach(t=>{points[t.name]=0; gf[t.name]=0; ga[t.name]=0;});
     teams.forEach((A,i)=>{
       teams.forEach((B,j)=>{ if(j>i){
         const id = g+"_"+A.name.replace(/\s/g,'')+"_"+B.name.replace(/\s/g,'');
-        const sA=parseInt(document.getElementById(id+"_scoreA").value)||0;
-        const sB=parseInt(document.getElementById(id+"_scoreB").value)||0;
-        gf[A.name]+=sA; ga[A.name]+=sB;
-        gf[B.name]+=sB; ga[B.name]+=sA;
-        if(sA>sB) points[A.name]+=3;
-        else if(sB>sA) points[B.name]+=3;
-        else {points[A.name]++; points[B.name]++;}
+        //const sA=parseInt(document.getElementById(id+"_scoreA").value)||0;
+        //const sB=parseInt(document.getElementById(id+"_scoreB").value)||0;
+        const result = document.getElementById(id+"_result").value;
+        if(result === "1") points[A.name] += 3;
+        else if(result === "2") points[B.name] += 3;
+        else if(result === "X") {
+        points[A.name] += 1;
+        points[B.name] += 1;
+        }
+        //gf[A.name]+=sA; ga[A.name]+=sB;
+        //gf[B.name]+=sB; ga[B.name]+=sA;
+        //if(sA>sB) points[A.name]+=3;
+        //else if(sB>sA) points[B.name]+=3;
+        //else {points[A.name]++; points[B.name]++;}
       }});
     });
-    const sorted = teams.slice().sort((a,b)=>points[b.name]-points[a.name] || (gf[b.name]-ga[b.name])-(gf[a.name]-ga[a.name]));
+    const sorted = teams.slice().sort((a,b)=>points[b.name]-points[a.name]); //|| (gf[b.name]-ga[b.name])-(gf[a.name]-ga[a.name]));
+    if(ties.length > 0){
+      resolveTie(g, ties, sorted);
+    }
     qualified.push(sorted[0].name,sorted[1].name);
-    thirdPlaces.push({name:sorted[2].name, pts:points[sorted[2].name], diff:gf[sorted[2].name]-ga[sorted[2].name]});
+    thirdPlaces.push({name:sorted[2].name, pts:points[sorted[2].name]});// , diff:gf[sorted[2].name]-ga[sorted[2].name]});
   }
   thirdPlaces.sort((a,b)=>b.pts-a.pts || b.diff-a.diff);
   const top8 = thirdPlaces.slice(0,8).map(t=>t.name);
