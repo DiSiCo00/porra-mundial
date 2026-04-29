@@ -164,7 +164,7 @@ function calculateQualified(){
   for(const g in groups){
     const teams = groups[g];
     const points={},// gf={}, ga={};
-    teams.forEach(t=>{points[t.name]=0; gf[t.name]=0; ga[t.name]=0;});
+    teams.forEach(t=>{points[t.name]=0});// gf[t.name]=0; ga[t.name]=0;});
     teams.forEach((A,i)=>{
       teams.forEach((B,j)=>{ if(j>i){
         const id = g+"_"+A.name.replace(/\s/g,'')+"_"+B.name.replace(/\s/g,'');
@@ -185,6 +185,8 @@ function calculateQualified(){
       }});
     });
     const sorted = teams.slice().sort((a,b)=>points[b.name]-points[a.name]); //|| (gf[b.name]-ga[b.name])-(gf[a.name]-ga[a.name]));
+
+    const ties = detectTies(sorted,points);
     if(ties.length > 0){
       resolveTie(g, ties, sorted);
     }
