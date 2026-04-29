@@ -119,43 +119,43 @@ for(const g in groups){
   container.appendChild(div);
 }
 
-function detectTies(sorted, points){//, gf, ga
-        const ties = [];
+// function detectTies(sorted, points){//, gf, ga
+//         const ties = [];
 
-        for(let i = 0; i < sorted.length - 1; i++){
-        const a = sorted[i];
-        const b = sorted[i+1];
+//         for(let i = 0; i < sorted.length - 1; i++){
+//         const a = sorted[i];
+//         const b = sorted[i+1];
 
-        if(
-          points[a.name] === points[b.name] //&& (gf[a.name]-ga[a.name]) === (gf[b.name]-ga[b.name])
-        ){
-      ties.push([a.name, b.name]);
-      }
-      }
-    return ties;
-    }
+//         if(
+//           points[a.name] === points[b.name] //&& (gf[a.name]-ga[a.name]) === (gf[b.name]-ga[b.name])
+//         ){
+//       ties.push([a.name, b.name]);
+//       }
+//       }
+//     return ties;
+//     }
 
-  function resolveTie(group, ties, sorted){
-  const container = document.getElementById("bracket");
+//   function resolveTie(group, ties, sorted){
+//   const container = document.getElementById("bracket");
 
-  container.innerHTML += `<h3>Empate en Grupo ${group}</h3>`;
+//   container.innerHTML += `<h3>Empate en Grupo ${group}</h3>`;
 
-  ties.forEach((pair, index) => {
-    const id = `tie_${group}_${index}`;
+//   ties.forEach((pair, index) => {
+//     const id = `tie_${group}_${index}`;
 
-    container.innerHTML += `
-      <div>
-        ${pair[0]} vs ${pair[1]}
-        <select id="${id}">
-          <option value="${pair[0]}">${pair[0]}</option>
-          <option value="${pair[1]}">${pair[1]}</option>
-        </select>
-      </div>
-    `;
-  });
+//     container.innerHTML += `
+//       <div>
+//         ${pair[0]} vs ${pair[1]}
+//         <select id="${id}">
+//           <option value="${pair[0]}">${pair[0]}</option>
+//           <option value="${pair[1]}">${pair[1]}</option>
+//         </select>
+//       </div>
+//     `;
+//   });
 
-  container.innerHTML += `<button onclick="applyTieBreak('${group}')">Confirmar desempate</button>`;
-}
+//   container.innerHTML += `<button onclick="applyTieBreak('${group}')">Confirmar desempate</button>`;
+// }
   
 // Calcular clasificados
 function calculateQualified(){
