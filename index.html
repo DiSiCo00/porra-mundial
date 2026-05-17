@@ -248,6 +248,35 @@ tiedGroups[g] = blocks;
 
   showStandings(final);
 
+   // recopilar directos y terceros
+const direct = [];
+const thirds = [];
+
+for(const g in final){
+  direct.push(final[g][0].name, final[g][1].name);
+  thirds.push({ name: final[g][2].name, pts: final[g][2].pts });
+}
+
+// guardamos global para la parte del corte
+window.directQualified = direct;
+window.thirdsBeforeCut = thirds;
+
+// ordenamos
+thirds.sort((a,b)=> b.pts - a.pts);
+
+// detectar bloque de corte
+const block = detectCutBlock(thirds);
+
+if(block.length > 1){
+  showThirdPlaceTiebreakUI(block);
+  return; // IMPORTANTE → esperar a resolver el corte
+}
+
+// sin empate → mostramos directamente
+const top8 = thirds.slice(0,8).map(t=>t.name);
+displayBracket(direct.concat(top8));
+
+
   const qualified = [];
   const thirds = [];
 
@@ -260,7 +289,107 @@ tiedGroups[g] = blocks;
   displayBracket(qualified.concat(thirds.slice(0, 8).map(t => t.name)));
 }
 
+function detectCutBlock(sortedThirds){
+  const cutoffPoints = sortedThirds[7].pts; // puntos del 8º
 
+  // seleccionamos todos los que tengan los mismos puntos que el 8º
+  const block = sortedThirds
+    .filter(t => t.pts === cutoffPoints)
+    .map(t => t.name);
+
+  // si sólo hay uno → no hay empate en el corte
+  return block.length > 1 ? block : [];
+}
+
+  function showThirdPlaceTiebreakUI(block){
+  let html = `<h2>Desempate entre Terceros</h2>
+              <p>Estos equipos han empatado por las últimas plazas de clasificación:</p>
+              <b>${block.join(", ")}</b><br><br>`;
+
+  if(block.length === 2){
+    html += `
+      <p>¿Quién queda por encima?</p>
+      <select id="third_cut_0">
+        <option value="${block[0]}">${block[0]}</option>
+        <option value="${block[1]}">${block[1]}</option>
+      </select>
+      <br><br>
+    `;
+  } else {
+    html += `<p>Define el orden entre ellos:</p>`;
+    
+    block.forEach((team,pos)=>{
+      const id = `third_cut_${pos}`;
+      html += `
+        Posición ${pos+1}:
+        <select class="third-tie" id="${id}">
+          <option value="">-</option>
+          ${block.map(t => `<option value="${t}">${t}</option>`).join("")}
+        </select>
+        <br>
+      `;
+    });
+  }
+
+  html += `<button onclick="applyThirdCutTiebreak('${block.join("|")}')">Resolver desempate</button>`;
+
+  document.getElementById("bracket").innerHTML = html;
+
+  enforceThirdUnique(); // evita duplicados
+}
+
+function applyThirdCutTiebreak(blockStr){
+  const block = blockStr.split("|");
+
+  let finalOrder = [];
+
+  if(block.length === 2){
+    const winner = document.getElementById("third_cut_0").value;
+    const loser  = block.find(t => t !== winner);
+    finalOrder = [winner, loser];
+
+  } else {
+    for(let i=0; i<block.length; i++){
+      const sel = document.getElementById("third_cut_"+i).value;
+      if(!sel){ alert("Faltan posiciones por definir."); return; }
+      finalOrder.push(sel);
+    }
+  }
+
+  // reconstruimos los TOP 8 ya con desempate aplicado
+  const sorted = window.thirdsBeforeCut.slice(); // copia original
+
+  // filtramos los que no estaban en el bloque
+  const others = sorted.filter(t => !block.includes(t.name));
+
+  // insertamos el nuevo orden del bloque en la parte superior del bloque
+  const newThirds = [];
+
+  sorted.forEach(t => {
+    if(!block.includes(t.name)){
+      newThirds.push(t); // los que no estaban empatados se mantienen
+    }
+  });
+
+  // sustituimos los valores empatados
+  finalOrder.forEach(name=>{
+    const obj = sorted.find(t => t.name === name);
+    newThirds.push(obj);
+  });
+
+  // reordenamos de nuevo por puntos, pero con orden dentro del bloque ahora fijo
+  newThirds.sort((a,b)=>{
+    if(a.pts !== b.pts) return b.pts - a.pts;
+    // si empatan en puntos, su orden queda por el orden original (corregido por desempate)
+    return 0;
+  });
+
+  // guardamos los ocho mejores
+  const top8 = newThirds.slice(0,8).map(t => t.name);
+
+  // fin → mostrar bracket final
+  displayBracket(window.directQualified.concat(top8));
+}
 
 
  function showTiebreakUI(tiedBlocksByGroup) {
