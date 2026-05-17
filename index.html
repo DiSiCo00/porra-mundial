@@ -213,39 +213,69 @@ function calculateQualified(){
   let finalStandings = JSON.parse(JSON.stringify(standingsBeforeTiebreak));
 
   for(const g in finalStandings){
-    const groupTable = finalStandings[g];
-    const tieGroups = detectTieGroups(groupTable, pointsBeforeTiebreak[g]);
+    const arr = finalStandings[g];
 
-    tieGroups.forEach((tieGroup, index) => {
-      // construimos el orden final
-      const chosenOrder = [];
+    const tieGroups = detectTieGroups(arr, pointsBeforeTiebreak[g]);
 
-      for(let pos=0; pos<tieGroup.length; pos++){
-        const id = `tiebreak_${g}_${index}_${pos}`;
-        const selected = document.getElementById(id).value;
+    tieGroups.forEach((groupTie, index) => {
 
-        if(!selected){
-          alert(`Falta seleccionar posición en Grupo ${g}`);
+      // EMPATE ENTRE 2 EQUIPOS
+      if(groupTie.length === 2){
+        const id = `tiebreak_${g}_${index}`;
+        const winner = document.getElementById(id).value;
+
+        if(!winner){
+          alert("Falta elegir ganador del desempate en grupo " + g);
           return;
         }
-        chosenOrder.push(selected);
+
+        const loser = groupTie.find(t => t !== winner);
+
+        // Orden: winner primero, loser después
+        arr.sort((a,b)=>{
+          if(a.name === winner) return -1;
+          if(b.name === winner) return 1;
+          if(a.name === loser) return -1;
+          if(b.name === loser) return 1;
+          return pointsBeforeTiebreak[g][b.name] - pointsBeforeTiebreak[g][a.name];
+        });
       }
 
-      // sustituimos orden
-      const rest = groupTable.filter(t => !tieGroup.includes(t.name));
+      // EMPATE ENTRE 3 O MÁS
+      else {
+        const chosenOrder = [];
 
-      const reordered = chosenOrder.map(name => 
-        groupTable.find(t => t.name === name)
-      );
+        for(let pos=0; pos<groupTie.length; pos++){
+          const id = `tiebreak_${g}_${index}_${pos}`;
+          const selected = document.getElementById(id).value;
 
-      finalStandings[g] = [...reordered, ...rest].sort((a,b)=>0);
-      
-      // reasignar posiciones numeradas
-      finalStandings[g].forEach((t,i)=> t.pos = i+1);
+          if(!selected){
+            alert(`Faltan posiciones por definir en empate múltiple del Grupo ${g}`);
+            return;
+          }
+
+          chosenOrder.push(selected);
+        }
+
+        // Reordenar
+        const newOrder = [];
+
+        chosenOrder.forEach(name=>{
+          newOrder.push(arr.find(t => t.name === name));
+        });
+
+        // reemplazar en la parte donde estaban
+        let rest = arr.filter(t => !groupTie.includes(t.name));
+
+        arr.splice(0, arr.length, ...newOrder.concat(rest));
+      }
     });
+
+    // actualizar posiciones numéricas
+    arr.forEach((t,i)=> t.pos = i+1);
   }
 
-  // Ahora sí, mostramos la clasificación final
+  // Mostrar clasificación final ya ordenada
   showStandings(finalStandings);
 
   // Calcular clasificados
@@ -259,10 +289,11 @@ function calculateQualified(){
   }
 
   thirds.sort((a,b)=> b.pts - a.pts);
-  const top8 = thirds.slice(0,8).map(x=>x.name);
+  const top8 = thirds.slice(0,8).map(t => t.name);
 
   displayBracket(qualified.concat(top8));
 }
+
 
  function showTiebreakUI(tiedGroups){
   let html = "<h2>Desempates necesarios</h2>";
@@ -270,30 +301,46 @@ function calculateQualified(){
 
   for(const g in tiedGroups){
     found = true;
-
-    html += `<h3>Grupo ${g}</h3>`;
     const ties = tiedGroups[g];
 
+    html += `<h3>Grupo ${g}</h3>`;
+
     ties.forEach((groupTie, index) => {
-      html += `<p>Los siguientes equipos han empatado: <b>${groupTie.join(", ")}</b></p>`;
-
-      html += `<p>Define el orden correcto:</p>`;
-
-      groupTie.forEach((team, pos) => {
-        const id = `tiebreak_${g}_${index}_${pos}`;
+      if(groupTie.length === 2){
+        // EMPATE ENTRE 2 → SELECT SENCILLO
+        const id = `tiebreak_${g}_${index}`;
 
         html += `
-          <div>
-            Posición ${pos+1}:
-            <select class="tie-select" id="${id}">
-              <option value="">-</option>
-              ${groupTie.map(t => `<option value="${t}">${t}</option>`).join("")}
-            </select>
-          </div>
+          <p><b>${groupTie[0]}</b> y <b>${groupTie[1]}</b> han empatado a puntos.</p>
+          <p>¿Quién queda por encima?</p>
+          <select id="${id}">
+            <option value="${groupTie[0]}">${groupTie[0]}</option>
+            <option value="${groupTie[1]}">${groupTie[1]}</option>
+          </select>
+          <br><br>
         `;
-      });
+      } else {
+        // EMPATE ENTRE 3 O 4 → ORDEN COMPLETO
+        html += `
+          <p>Los siguientes equipos han empatado: <b>${groupTie.join(", ")}</b></p>
+          <p>Define el orden completo:</p>
+        `;
 
-      html += `<br>`;
+        groupTie.forEach((team, pos) => {
+          const id = `tiebreak_${g}_${index}_${pos}`;
+          html += `
+            <div>
+              Posición ${pos+1}:
+              <select class="tie-select" id="${id}">
+                <option value="">-</option>
+                ${groupTie.map(t => `<option value="${t}">${t}</option>`).join("")}
+              </select>
+            </div>
+          `;
+        });
+
+        html += "<br>";
+      }
     });
   }
 
@@ -306,9 +353,10 @@ function calculateQualified(){
 
   document.getElementById("bracket").innerHTML = html;
 
-  // Evitar duplicados automáticamente
+  // Solo necesario para empates de 3+
   enforceUniqueOrder();
 }
+
 
 function enforceUniqueOrder(){
   document.querySelectorAll(".tie-select").forEach(sel => {
