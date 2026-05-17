@@ -249,9 +249,10 @@ function calculateQualified(){
     `${r.user};${r.group};${r.date};${r.home};${r.away};${r.result}`
   );
   const csv = [header, ...lines].join("\n");
-
+  const BOM = "\uFEFF";
+  const csvWithBOM = BOM + csv;
   // Descargar archivo automáticamente
-  const blob = new Blob([csv], { type: "text/csv" });
+  const blob = new Blob([csvWithBOM],{ type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
