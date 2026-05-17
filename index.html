@@ -216,15 +216,23 @@ function calculateQualified(){
 // Mostrar tabla completa por grupo
 function showStandings(standings){
   let html = "<h2>Clasificación por Grupos</h2>";
-
   for(const g in standings){
     html += `<h3>Grupo ${g}</h3>`;
-    html += `<pre>${standings[g].map(t =>
-      `${t.pos}. ${t.name}  —  ${t.pts} pts`
-    ).join("\n")}</pre>`;
+    html += `
+      <table border="1" cellpadding="5" style="margin-bottom:10px;">
+        <tr><th>Pos</th><th>Equipo</th><th>Puntos</th></tr>
+        ${standings[g].map(t => `
+          <tr>
+            <td>${t.pos}</td>
+            <td>${t.name}</td>
+            <td>${t.pts}</td>
+          </tr>
+        `).join("")}
+      </table>
+    `;
   }
 
-  document.getElementById("bracket").innerHTML = html;
+  document.getElementById("standings").innerHTML = html;
 }
 
 function displayBracket(arr){
