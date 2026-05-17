@@ -120,43 +120,27 @@ for(const g in groups){
   container.appendChild(div);
 }
 
-// function detectTies(sorted, points){//, gf, ga
-//         const ties = [];
+function detectTieGroups(sorted, points){
+  const tieGroups = [];
+  let current = [sorted[0].name];
 
-//         for(let i = 0; i < sorted.length - 1; i++){
-//         const a = sorted[i];
-//         const b = sorted[i+1];
+  for(let i=1;i<sorted.length;i++){
+    const prev = sorted[i-1].name;
+    const curr = sorted[i].name;
 
-//         if(
-//           points[a.name] === points[b.name] //&& (gf[a.name]-ga[a.name]) === (gf[b.name]-ga[b.name])
-//         ){
-//       ties.push([a.name, b.name]);
-//       }
-//       }
-//     return ties;
-//     }
+    if(points[prev] === points[curr]){
+      current.push(curr);
+    } else {
+      if(current.length > 1) tieGroups.push([...current]);
+      current = [curr];
+    }
+  }
 
-//   function resolveTie(group, ties, sorted){
-//   const container = document.getElementById("bracket");
+  if(current.length > 1) tieGroups.push([...current]);
 
-//   container.innerHTML += `<h3>Empate en Grupo ${group}</h3>`;
+  return tieGroups;
+}
 
-//   ties.forEach((pair, index) => {
-//     const id = `tie_${group}_${index}`;
-
-//     container.innerHTML += `
-//       <div>
-//         ${pair[0]} vs ${pair[1]}
-//         <select id="${id}">
-//           <option value="${pair[0]}">${pair[0]}</option>
-//           <option value="${pair[1]}">${pair[1]}</option>
-//         </select>
-//       </div>
-//     `;
-//   });
-
-//   container.innerHTML += `<button onclick="applyTieBreak('${group}')">Confirmar desempate</button>`;
-// }
 let standingsBeforeTiebreak = {};
 let pointsBeforeTiebreak = {};
 
@@ -228,43 +212,43 @@ function calculateQualified(){
   function applyTiebreaks(){
   let finalStandings = JSON.parse(JSON.stringify(standingsBeforeTiebreak));
 
-  // aplicar desempates seleccionados
   for(const g in finalStandings){
-    let arr = finalStandings[g];
+    const groupTable = finalStandings[g];
+    const tieGroups = detectTieGroups(groupTable, pointsBeforeTiebreak[g]);
 
-    // leer selects y modificar orden
-    for(let i=0;i<arr.length-1;i++){
-      const A = arr[i];
-      const B = arr[i+1];
+    tieGroups.forEach((tieGroup, index) => {
+      // construimos el orden final
+      const chosenOrder = [];
 
-      if(pointsBeforeTiebreak[g][A.name] === pointsBeforeTiebreak[g][B.name]){
-        const id = `tiebreak_${g}_${i}`;
-        const sel = document.getElementById(id);
-        if(sel){
-          const winner = sel.value;
+      for(let pos=0; pos<tieGroup.length; pos++){
+        const id = `tiebreak_${g}_${index}_${pos}`;
+        const selected = document.getElementById(id).value;
 
-          // poner al ganador por encima
-          arr.sort((x,y)=>{
-            if(x.name === winner) return -1;
-            if(y.name === winner) return 1;
-            return pointsBeforeTiebreak[g][y.name] - pointsBeforeTiebreak[g][x.name];
-          });
+        if(!selected){
+          alert(`Falta seleccionar posición en Grupo ${g}`);
+          return;
         }
+        chosenOrder.push(selected);
       }
-    }
+
+      // sustituimos orden
+      const rest = groupTable.filter(t => !tieGroup.includes(t.name));
+
+      const reordered = chosenOrder.map(name => 
+        groupTable.find(t => t.name === name)
+      );
+
+      finalStandings[g] = [...reordered, ...rest].sort((a,b)=>0);
+      
+      // reasignar posiciones numeradas
+      finalStandings[g].forEach((t,i)=> t.pos = i+1);
+    });
   }
 
-  // mostrar clasificación final
-  let html = "<h2>Clasificación Final</h2>";
-  for(const g in finalStandings){
-    html += `<h3>Grupo ${g}</h3>`;
-    html += `<pre>${finalStandings[g].map(t =>
-      `${t.pos}. ${t.name} — ${t.pts} pts`
-    ).join("\n")}</pre>`;
-  }
-  document.getElementById("standings").innerHTML = html;
+  // Ahora sí, mostramos la clasificación final
+  showStandings(finalStandings);
 
-  // calcular clasificados reales
+  // Calcular clasificados
   const qualified = [];
   const thirds = [];
 
@@ -280,29 +264,36 @@ function calculateQualified(){
   displayBracket(qualified.concat(top8));
 }
 
-  
-function showTiebreakUI(tiedGroups){
+ function showTiebreakUI(tiedGroups){
   let html = "<h2>Desempates necesarios</h2>";
   let found = false;
 
   for(const g in tiedGroups){
     found = true;
+
     html += `<h3>Grupo ${g}</h3>`;
+    const ties = tiedGroups[g];
 
-    tiedGroups[g].forEach((pair, index)=>{
-      const id = `tiebreak_${g}_${index}`;
+    ties.forEach((groupTie, index) => {
+      html += `<p>Los siguientes equipos han empatado: <b>${groupTie.join(", ")}</b></p>`;
 
-      html += `
-        <div>
-          <b>${pair[0]}</b> y <b>${pair[1]}</b> están empatados a puntos.<br>
-          ¿Quién queda por encima?
-          <select id="${id}">
-            <option value="${pair[0]}">${pair[0]}</option>
-            <option value="${pair[1]}">${pair[1]}</option>
-          </select>
-        </div>
-        <br>
-      `;
+      html += `<p>Define el orden correcto:</p>`;
+
+      groupTie.forEach((team, pos) => {
+        const id = `tiebreak_${g}_${index}_${pos}`;
+
+        html += `
+          <div>
+            Posición ${pos+1}:
+            <select class="tie-select" id="${id}">
+              <option value="">-</option>
+              ${groupTie.map(t => `<option value="${t}">${t}</option>`).join("")}
+            </select>
+          </div>
+        `;
+      });
+
+      html += `<br>`;
     });
   }
 
@@ -314,6 +305,26 @@ function showTiebreakUI(tiedGroups){
   }
 
   document.getElementById("bracket").innerHTML = html;
+
+  // Evitar duplicados automáticamente
+  enforceUniqueOrder();
+}
+
+function enforceUniqueOrder(){
+  document.querySelectorAll(".tie-select").forEach(sel => {
+    sel.addEventListener("change", () => {
+      const siblings = Array.from(sel.parentNode.parentNode.querySelectorAll(".tie-select"));
+
+      const values = siblings.map(s => s.value);
+      const duplicates = values.filter((v,i) => v && values.indexOf(v) !== i);
+
+      if(duplicates.length > 0){
+        // limpiar la selección repetida
+        sel.value = "";
+        alert("Cada equipo solo puede aparecer una vez en el orden.");
+      }
+    });
+  });
 }
 
 
