@@ -120,24 +120,23 @@ for(const g in groups){
   container.appendChild(div);
 }
 
-function detectTieBlocks(sorted, points){
+function detectTieBlocks(sorted, points) {
   const blocks = [];
-  let currentBlock = [sorted[0].name];
+  let block = [sorted[0].name];
 
   for (let i = 1; i < sorted.length; i++) {
     const prev = sorted[i - 1].name;
     const curr = sorted[i].name;
 
     if (points[prev] === points[curr]) {
-      currentBlock.push(curr);
+      block.push(curr);
     } else {
-      if (currentBlock.length > 1) blocks.push([...currentBlock]);
-      currentBlock = [curr];
+      if (block.length > 1) blocks.push([...block]);
+      block = [curr];
     }
   }
 
-  if (currentBlock.length > 1) blocks.push([...currentBlock]);
-
+  if (block.length > 1) blocks.push([...block]);
   return blocks;
 }
 
@@ -210,99 +209,88 @@ function calculateQualified(){
 }
 
 
- function applyTiebreaks(){
-  let finalStandings = JSON.parse(JSON.stringify(standingsBeforeTiebreak));
+ function applyTiebreaks() {
+  let final = JSON.parse(JSON.stringify(standingsBeforeTiebreak));
 
-  for (const g in finalStandings) {
-    const arr = finalStandings[g];
-    const tieBlocks = detectTieBlocks(arr, pointsBeforeTiebreak[g]);
+  for (const g in final) {
+    const arr = final[g];
+    const blocks = detectTieBlocks(arr, pointsBeforeTiebreak[g]);
 
-    tieBlocks.forEach((block, index) => {
+    blocks.forEach((block, blockIndex) => {
 
-      // Empate entre 2 equipos
+      // EMPATE DE 2
       if (block.length === 2) {
-        const id = `tiebreak_${g}_${index}`;
+        const id = `tiebreak_${g}_${blockIndex}`;
         const winner = document.getElementById(id).value;
         const loser = block.find(t => t !== winner);
 
-        arr.sort((a,b)=>{
-          if(a.name === winner) return -1;
-          if(b.name === winner) return 1;
-          if(a.name === loser) return -1;
-          if(b.name === loser) return 1;
+        arr.sort((a, b) => {
+          if (a.name === winner) return -1;
+          if (b.name === winner) return 1;
+          if (a.name === loser) return -1;
+          if (b.name === loser) return 1;
           return 0;
         });
       }
 
-      // Empate de 3 o 4 equipos
+      // EMPATE DE 3 O 4
       else {
-        const chosenOrder = [];
-
+        const order = [];
         for (let pos = 0; pos < block.length; pos++) {
-          const id = `tiebreak_${g}_${index}_${pos}`;
-          const selected = document.getElementById(id).value;
-
-          if (!selected) {
-            alert(`Faltan posiciones por definir en el empate múltiple del Grupo ${g}`);
-            return;
-          }
-
-          chosenOrder.push(selected);
+          const id = `tiebreak_${g}_${blockIndex}_${pos}`;
+          const sel = document.getElementById(id).value;
+          if (!sel) { alert("Faltan posiciones por seleccionar"); return; }
+          order.push(sel);
         }
 
-        // Reordenar bloque
-        const newOrder = chosenOrder.map(name =>
-          arr.find(t => t.name === name)
-        );
-
-        // Reemplazar por nueva ordenación
-        const others = arr.filter(t => !block.includes(t.name));
+        const newOrder = order.map(name => arr.find(t => t.name === name));
+        const others  = arr.filter(t => !block.includes(t.name));
 
         arr.splice(0, arr.length, ...newOrder.concat(others));
       }
+
     });
 
-    // Reasignar posiciones numéricas
-    arr.forEach((t,i)=> t.pos = i+1);
+    arr.forEach((t, i) => t.pos = i + 1);
   }
 
-  // Mostrar clasificación final
-  showStandings(finalStandings);
+  showStandings(final);
 
-  // Clasificados y bracket
   const qualified = [];
   const thirds = [];
 
-  for(const g in finalStandings){
-    const arr = finalStandings[g];
-    qualified.push(arr[0].name, arr[1].name);
-    thirds.push({ name: arr[2].name, pts: arr[2].pts });
+  for (const g in final) {
+    qualified.push(final[g][0].name, final[g][1].name);
+    thirds.push({ name: final[g][2].name, pts: final[g][2].pts });
   }
 
-  thirds.sort((a,b)=> b.pts - a.pts);
-  const top8 = thirds.slice(0,8).map(t => t.name);
-
-  displayBracket(qualified.concat(top8));
+  thirds.sort((a, b) => b.pts - a.pts);
+  displayBracket(qualified.concat(thirds.slice(0, 8).map(t => t.name)));
 }
 
 
 
- function showTiebreakUI(tiedGroups){
-  let html = "<h2>Desempates necesarios</h2>";
-  let found = false;
 
-  for (const g in tiedGroups) {
-    found = true;
+ function showTiebreakUI(tiedBlocksByGroup) {
+  let html = "<h2>Desempates necesarios</h2>";
+  let hasTies = false;
+
+  for (const g in tiedBlocksByGroup) {
+    const blocks = tiedBlocksByGroup[g];
+    if (blocks.length === 0) continue;
+
+    hasTies = true;
+
     html += `<h3>Grupo ${g}</h3>`;
 
-    tiedGroups[g].forEach((block, idx) => {
+    blocks.forEach((block, bIndex) => {
 
       if (block.length === 2) {
-        // Empate sencillo entre 2
-        const id = `tiebreak_${g}_${idx}`;
+        // EMPATE DE 2
+        const id = `tiebreak_${g}_${bIndex}`;
 
         html += `
-          <p>${block[0]} y ${block[1]} han empatado a puntos.</p>
+          <p>${block[0]} y ${block[1]} han empatado.</p>
           <p>¿Quién queda por encima?</p>
           <select id="${id}">
             <option value="${block[0]}">${block[0]}</option>
@@ -310,15 +298,16 @@ function calculateQualified(){
           </select>
           <br><br>
         `;
+
       } else {
-        // Empate múltiple de 3 o 4
+        // EMPATES DE 3 O 4
         html += `
-          <p>Empate múltiple entre: <b>${block.join(", ")}</b></p>
+          <p>Han empatado: <b>${block.join(", ")}</b></p>
           <p>Define el orden completo:</p>
         `;
 
         block.forEach((team, pos) => {
-          const id = `tiebreak_${g}_${idx}_${pos}`;
+          const id = `tiebreak_${g}_${bIndex}_${pos}`;
           html += `
             <div>
               Posición ${pos + 1}:
@@ -335,35 +324,34 @@ function calculateQualified(){
     });
   }
 
-  if (found) {
+  if (hasTies) {
     html += `<button onclick="applyTiebreaks()">Realizar desempates</button>`;
   } else {
-    html += "<p>No hay empates. Mostrando clasificados directamente.</p>";
+    html += "<p>No hay empates. Mostrando clasificados...</p>";
     applyTiebreaks();
   }
 
   document.getElementById("bracket").innerHTML = html;
 
-  // Para evitar selecciones duplicadas SOLO se activa en empates de 3+
-  enforceUniqueOrder();
+  enforceUniqueOrder(); // evita duplicados en empates 3-4
 }
 
 
+
 function enforceUniqueOrder(){
-  document.querySelectorAll(".tie-select").forEach(sel => {
-    sel.addEventListener("change", () => {
-      const siblings = Array.from(sel.parentNode.parentNode.querySelectorAll(".tie-select"));
+  const selects = document.querySelectorAll(".tie-select");
+  selects.forEach(s => s.addEventListener("change", () => {
+    const parent = s.parentNode.parentNode;
+    const all = parent.querySelectorAll(".tie-select");
 
-      const values = siblings.map(s => s.value);
-      const duplicates = values.filter((v,i) => v && values.indexOf(v) !== i);
+    const values = [...all].map(x => x.value).filter(v => v !== "");
+    const duplicates = values.filter((v, i) => values.indexOf(v) !== i);
 
-      if(duplicates.length > 0){
-        // limpiar la selección repetida
-        sel.value = "";
-        alert("Cada equipo solo puede aparecer una vez en el orden.");
-      }
-    });
-  });
+    if (duplicates.length) {
+      alert("Cada equipo debe aparecer solo una vez.");
+      s.value = "";
+    }
+  }));
 }
 
 
