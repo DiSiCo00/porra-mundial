@@ -157,11 +157,11 @@ for(const g in groups){
 
 //   container.innerHTML += `<button onclick="applyTieBreak('${group}')">Confirmar desempate</button>`;
 // }
-let standingsBeforeTiebreak = {}; // guarda clasificación antes de desempates
-let pointsBeforeTiebreak = {};    // guarda puntos por grupo
+let standingsBeforeTiebreak = {};
+let pointsBeforeTiebreak = {};
 
 function calculateQualified(){
-  saveUserBet();  // descarga CSV + guarda localmente
+  saveUserBet();  // descarga CSV + guarda local
 
   const standingsOutput = {};
   const matchesByGroup = {};
@@ -172,6 +172,7 @@ function calculateQualified(){
     matchesByGroup[m.group].push(m);
   });
 
+  // 1. Calcular puntos y clasificaciones
   for(const g in groups){
     const teams = groups[g];
     const points = {};
@@ -192,8 +193,8 @@ function calculateQualified(){
       }
     });
 
-    // ordenar por puntos
     const sorted = teams.slice().sort((a,b)=> points[b.name] - points[a.name]);
+
     standingsOutput[g] = sorted.map((t,i)=>({
       pos: i+1,
       name: t.name,
@@ -202,7 +203,7 @@ function calculateQualified(){
 
     pointsBeforeTiebreak[g] = points;
 
-    // detectar empates
+    // 2. Detectar empates SOLO entre vecinos
     const ties = [];
     for(let i=0;i<sorted.length-1;i++){
       const A = sorted[i], B = sorted[i+1];
@@ -218,9 +219,11 @@ function calculateQualified(){
 
   standingsBeforeTiebreak = standingsOutput;
 
-  // mostrar empates
+  // 3. Mostrar clasificación y pasar al UI de desempates
+  showStandings(standingsOutput);
   showTiebreakUI(tiedGroups);
 }
+
 
   function applyTiebreaks(){
   let finalStandings = JSON.parse(JSON.stringify(standingsBeforeTiebreak));
@@ -280,11 +283,10 @@ function calculateQualified(){
   
 function showTiebreakUI(tiedGroups){
   let html = "<h2>Desempates necesarios</h2>";
-
-  let needsTiebreak = false;
+  let found = false;
 
   for(const g in tiedGroups){
-    needsTiebreak = true;
+    found = true;
     html += `<h3>Grupo ${g}</h3>`;
 
     tiedGroups[g].forEach((pair, index)=>{
@@ -304,15 +306,14 @@ function showTiebreakUI(tiedGroups){
     });
   }
 
-  if(needsTiebreak){
+  if(found){
     html += `<button onclick="applyTiebreaks()">Realizar desempates</button>`;
   } else {
-    html += "<p>No hay empates. Mostrando clasificados...</p>";
+    html += "<p>No hay empates. Mostrando clasificados directamente.</p>";
     applyTiebreaks();
   }
 
-  document.getElementById("standings").innerHTML = html;
-  document.getElementById("bracket").innerHTML = "";
+  document.getElementById("bracket").innerHTML = html;
 }
 
 
