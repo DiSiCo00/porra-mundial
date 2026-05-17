@@ -156,13 +156,11 @@ for(const g in groups){
 
 //   container.innerHTML += `<button onclick="applyTieBreak('${group}')">Confirmar desempate</button>`;
 // }
-  
-// Calcular clasificados
 function calculateQualified(){
   const qualified = [];
   const thirdPlaces = [];
+  const standingsOutput = {};
 
-  // Organizar partidos por grupo
   const matchesByGroup = {};
   matches.forEach(m => {
     if (!matchesByGroup[m.group]) matchesByGroup[m.group] = [];
@@ -172,11 +170,9 @@ function calculateQualified(){
   for(const g in groups){
     const teams = groups[g];
 
-    // Inicializar puntos
     const points = {};
     teams.forEach(t => points[t.name] = 0);
 
-    // Recorrer partidos reales del grupo
     matchesByGroup[g].forEach(m => {
       const matchId = m.group + "_" +
         m.home.name.replace(/\s/g,'') + "_" +
@@ -184,35 +180,50 @@ function calculateQualified(){
 
       const result = document.getElementById(matchId + "_result").value;
 
-      if(result === "1")         points[m.home.name] += 3;
-      else if(result === "2")    points[m.away.name] += 3;
+      if(result === "1") points[m.home.name] += 3;
+      else if(result === "2") points[m.away.name] += 3;
       else if(result === "X"){
         points[m.home.name] += 1;
         points[m.away.name] += 1;
       }
     });
 
-    // Ordenar por puntos
     const sorted = teams.slice().sort((a,b)=> points[b.name] - points[a.name]);
 
-    // Los dos primeros pasan directo
+    standingsOutput[g] = sorted.map((t, i) => ({
+      pos: i+1,
+      name: t.name,
+      pts: points[t.name]
+    }));
+
     qualified.push(sorted[0].name, sorted[1].name);
 
-    // Tercer puesto para ranking global
     thirdPlaces.push({
+      group: g,
       name: sorted[2].name,
       pts: points[sorted[2].name]
     });
   }
 
-  // Ordenar terceros
   thirdPlaces.sort((a,b)=> b.pts - a.pts);
-
-  // Los 8 mejores terceros
   const top8 = thirdPlaces.slice(0,8).map(t=>t.name);
 
-  // Mostrar bracket
+  showStandings(standingsOutput);
   displayBracket(qualified.concat(top8));
+}
+
+// Mostrar tabla completa por grupo
+function showStandings(standings){
+  let html = "<h2>Clasificación por Grupos</h2>";
+
+  for(const g in standings){
+    html += `<h3>Grupo ${g}</h3>`;
+    html += `<pre>${standings[g].map(t =>
+      `${t.pos}. ${t.name}  —  ${t.pts} pts`
+    ).join("\n")}</pre>`;
+  }
+
+  document.getElementById("bracket").innerHTML = html;
 }
 
 function displayBracket(arr){
