@@ -187,18 +187,10 @@ function calculateQualified(){
 
     pointsBeforeTiebreak[g] = points;
 
-    // 2. Detectar empates SOLO entre vecinos
-    const ties = [];
-    for(let i=0;i<sorted.length-1;i++){
-      const A = sorted[i], B = sorted[i+1];
-      if(points[A.name] === points[B.name]){
-        ties.push([A.name, B.name]);
-      }
-    }
+    // 2. Detectar bloques completos de empate
+const blocks = detectTieBlocks(sorted, points);
+tiedGroups[g] = blocks;
 
-    if(ties.length > 0){
-      tiedGroups[g] = ties;
-    }
   }
 
   standingsBeforeTiebreak = standingsOutput;
