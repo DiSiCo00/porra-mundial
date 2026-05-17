@@ -157,13 +157,16 @@ for(const g in groups){
 
 //   container.innerHTML += `<button onclick="applyTieBreak('${group}')">Confirmar desempate</button>`;
 // }
-function calculateQualified(){
-  saveUserBet();
-  const qualified = [];
-  const thirdPlaces = [];
-  const standingsOutput = {};
+let standingsBeforeTiebreak = {}; // guarda clasificación antes de desempates
+let pointsBeforeTiebreak = {};    // guarda puntos por grupo
 
+function calculateQualified(){
+  saveUserBet();  // descarga CSV + guarda localmente
+
+  const standingsOutput = {};
   const matchesByGroup = {};
+  const tiedGroups = {};
+
   matches.forEach(m => {
     if (!matchesByGroup[m.group]) matchesByGroup[m.group] = [];
     matchesByGroup[m.group].push(m);
@@ -171,48 +174,147 @@ function calculateQualified(){
 
   for(const g in groups){
     const teams = groups[g];
-
     const points = {};
     teams.forEach(t => points[t.name] = 0);
 
     matchesByGroup[g].forEach(m => {
-      const matchId = m.group + "_" +
+      const id = m.group + "_" +
         m.home.name.replace(/\s/g,'') + "_" +
         m.away.name.replace(/\s/g,'');
 
-      const result = document.getElementById(matchId + "_result").value;
+      const res = document.getElementById(id + "_result").value || "-";
 
-      if(result === "1") points[m.home.name] += 3;
-      else if(result === "2") points[m.away.name] += 3;
-      else if(result === "X"){
+      if(res === "1") points[m.home.name] += 3;
+      else if(res === "2") points[m.away.name] += 3;
+      else if(res === "X"){
         points[m.home.name] += 1;
         points[m.away.name] += 1;
       }
     });
 
+    // ordenar por puntos
     const sorted = teams.slice().sort((a,b)=> points[b.name] - points[a.name]);
-
-    standingsOutput[g] = sorted.map((t, i) => ({
+    standingsOutput[g] = sorted.map((t,i)=>({
       pos: i+1,
       name: t.name,
       pts: points[t.name]
     }));
 
-    qualified.push(sorted[0].name, sorted[1].name);
+    pointsBeforeTiebreak[g] = points;
 
-    thirdPlaces.push({
-      group: g,
-      name: sorted[2].name,
-      pts: points[sorted[2].name]
+    // detectar empates
+    const ties = [];
+    for(let i=0;i<sorted.length-1;i++){
+      const A = sorted[i], B = sorted[i+1];
+      if(points[A.name] === points[B.name]){
+        ties.push([A.name, B.name]);
+      }
+    }
+
+    if(ties.length > 0){
+      tiedGroups[g] = ties;
+    }
+  }
+
+  standingsBeforeTiebreak = standingsOutput;
+
+  // mostrar empates
+  showTiebreakUI(tiedGroups);
+}
+
+  function applyTiebreaks(){
+  let finalStandings = JSON.parse(JSON.stringify(standingsBeforeTiebreak));
+
+  // aplicar desempates seleccionados
+  for(const g in finalStandings){
+    let arr = finalStandings[g];
+
+    // leer selects y modificar orden
+    for(let i=0;i<arr.length-1;i++){
+      const A = arr[i];
+      const B = arr[i+1];
+
+      if(pointsBeforeTiebreak[g][A.name] === pointsBeforeTiebreak[g][B.name]){
+        const id = `tiebreak_${g}_${i}`;
+        const sel = document.getElementById(id);
+        if(sel){
+          const winner = sel.value;
+
+          // poner al ganador por encima
+          arr.sort((x,y)=>{
+            if(x.name === winner) return -1;
+            if(y.name === winner) return 1;
+            return pointsBeforeTiebreak[g][y.name] - pointsBeforeTiebreak[g][x.name];
+          });
+        }
+      }
+    }
+  }
+
+  // mostrar clasificación final
+  let html = "<h2>Clasificación Final</h2>";
+  for(const g in finalStandings){
+    html += `<h3>Grupo ${g}</h3>`;
+    html += `<pre>${finalStandings[g].map(t =>
+      `${t.pos}. ${t.name} — ${t.pts} pts`
+    ).join("\n")}</pre>`;
+  }
+  document.getElementById("standings").innerHTML = html;
+
+  // calcular clasificados reales
+  const qualified = [];
+  const thirds = [];
+
+  for(const g in finalStandings){
+    const arr = finalStandings[g];
+    qualified.push(arr[0].name, arr[1].name);
+    thirds.push({ name: arr[2].name, pts: arr[2].pts });
+  }
+
+  thirds.sort((a,b)=> b.pts - a.pts);
+  const top8 = thirds.slice(0,8).map(x=>x.name);
+
+  displayBracket(qualified.concat(top8));
+}
+
+  
+function showTiebreakUI(tiedGroups){
+  let html = "<h2>Desempates necesarios</h2>";
+
+  let needsTiebreak = false;
+
+  for(const g in tiedGroups){
+    needsTiebreak = true;
+    html += `<h3>Grupo ${g}</h3>`;
+
+    tiedGroups[g].forEach((pair, index)=>{
+      const id = `tiebreak_${g}_${index}`;
+
+      html += `
+        <div>
+          <b>${pair[0]}</b> y <b>${pair[1]}</b> están empatados a puntos.<br>
+          ¿Quién queda por encima?
+          <select id="${id}">
+            <option value="${pair[0]}">${pair[0]}</option>
+            <option value="${pair[1]}">${pair[1]}</option>
+          </select>
+        </div>
+        <br>
+      `;
     });
   }
 
-  thirdPlaces.sort((a,b)=> b.pts - a.pts);
-  const top8 = thirdPlaces.slice(0,8).map(t=>t.name);
+  if(needsTiebreak){
+    html += `<button onclick="applyTiebreaks()">Realizar desempates</button>`;
+  } else {
+    html += "<p>No hay empates. Mostrando clasificados...</p>";
+    applyTiebreaks();
+  }
 
-  showStandings(standingsOutput);
-  displayBracket(qualified.concat(top8));
+  document.getElementById("standings").innerHTML = html;
+  document.getElementById("bracket").innerHTML = "";
 }
+
 
   function saveUserBet(){
   const username = document.getElementById("username").value.trim();
