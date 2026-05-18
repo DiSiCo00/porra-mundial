@@ -238,23 +238,30 @@ function calculateQualified(){
 ────────────────────────────────────────────── */
 
 function detectTieBlocks(sorted, points){
-  const blocks=[];
-  let block=[ sorted[0].name ];
+  const blocks = [];
+  let start = 0;
 
   for(let i=1;i<sorted.length;i++){
-    const prev=sorted[i-1].name;
-    const curr=sorted[i].name;
+    const prev = sorted[i-1].name;
+    const curr = sorted[i].name;
 
-    if(points[prev]===points[curr]){
-      block.push(curr);
-    } else {
-      if(block.length>1) blocks.push([...block]);
-      block=[curr];
+    if(points[prev] !== points[curr]){
+      if(i-1 > start){ // hubo bloque de tamaño >=2
+        const names = sorted.slice(start, i).map(t => t.name);
+        blocks.push({ names, startIndex: start, endIndex: i-1 });
+      }
+      start = i;
     }
   }
-  if(block.length>1) blocks.push([...block]);
+  // cerrar bloque final si aplica
+  if(sorted.length-1 > start){
+    const names = sorted.slice(start, sorted.length).map(t => t.name);
+    blocks.push({ names, startIndex: start, endIndex: sorted.length-1 });
+  }
+
   return blocks;
 }
+
 
 /* ─────────────────────────────────────────────
    6) UI DE DESEMPATES POR GRUPO
@@ -317,47 +324,60 @@ function applyGroupTiebreaks(){
   let final = JSON.parse(JSON.stringify(standingsBeforeTiebreak));
 
   for(const g in final){
-    const arr=final[g];
-    const blocks = detectTieBlocks(arr,pointsBeforeTiebreak[g]);
+    const arr = final[g];
+    const blocks = detectTieBlocks(arr, pointsBeforeTiebreak[g]); // ahora devuelve {names,startIndex,endIndex}
 
-    blocks.forEach((block,i)=>{
-      if(block.length===2){
-        const id=`tiebreak_${g}_${i}`;
-        const winner=document.getElementById(id).value;
-        const loser=block.find(t=>t!==winner);
+    blocks.forEach((block, i) => {
+      const { names, startIndex, endIndex } = block;
 
-        arr.sort((a,b)=>{
-          if(a.name===winner) return -1;
-          if(b.name===winner) return 1;
-          if(a.name===loser) return -1;
-          if(b.name===loser) return 1;
-          return 0;
-        });
+      // construir el nuevo orden SOLO para el segmento [startIndex..endIndex]
+      let newSegment = [];
+
+      if(names.length === 2){
+        const id = `tiebreak_${g}_${i}`;
+        const winner = document.getElementById(id)?.value;
+        if(!winner){ alert(`Falta elegir ganador en el Grupo ${g}`); throw new Error("tiebreak missing"); }
+        const loser = names.find(n => n !== winner);
+
+        // mapear a objetos standings manteniendo sus puntos ya calculados
+        const winnerObj = arr.slice(startIndex, endIndex+1).find(t => t.name === winner);
+        const loserObj  = arr.slice(startIndex, endIndex+1).find(t => t.name === loser);
+        newSegment = [winnerObj, loserObj];
 
       } else {
-        const order=[];
-        for(let pos=0;pos<block.length;pos++){
-          const id=`tiebreak_${g}_${i}_${pos}`;
-          const sel=document.getElementById(id).value;
-          if(!sel){ alert("Faltan posiciones por definir."); return; }
-          order.push(sel);
+        // 3 o 4 equipos: leer el orden completo
+        const chosen = [];
+        for(let pos=0; pos<names.length; pos++){
+          const id = `tiebreak_${g}_${i}_${pos}`;
+          const sel = document.getElementById(id)?.value;
+          if(!sel){ alert(`Faltan posiciones por definir en el Grupo ${g}`); throw new Error("tiebreak missing"); }
+          if(chosen.includes(sel)){ alert("Cada equipo solo puede aparecer una vez."); throw new Error("duplicate"); }
+          chosen.push(sel);
         }
-
-        const newBlock = order.map(name=> arr.find(t=>t.name===name));
-        const others = arr.filter(t=>!block.includes(t.name));
-
-        arr.splice(0,arr.length,...newBlock.concat(others));
+        const segmentObjs = arr.slice(startIndex, endIndex+1);
+        newSegment = chosen.map(name => segmentObjs.find(t => t.name === name));
       }
+
+      // reconstruir el array final del grupo SIN tocar lo demás
+      const before = arr.slice(0, startIndex);
+      const after  = arr.slice(endIndex+1);
+      const rebuilt = before.concat(newSegment, after);
+
+      // escribir de vuelta en arr (mantener referencia original)
+      arr.splice(0, arr.length, ...rebuilt);
     });
 
-    arr.forEach((t,i)=> t.pos=i+1);
+    // reasignar posiciones numeradas al final
+    arr.forEach((t, idx) => t.pos = idx + 1);
   }
 
+  // mostrar tabla final tras desempates de grupo
   showStandings(final);
 
-  // PASAMOS A TERCEROS
+  // continuar con terceros y posible desempate del corte
   handleThirdPlaces(final);
 }
+
 
 /* ─────────────────────────────────────────────
    8) MANEJO DE LOS TERCEROS Y SU EMPATE DE CORTE
