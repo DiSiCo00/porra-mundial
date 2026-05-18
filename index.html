@@ -33,62 +33,57 @@
 <div id="bracket"></div>
 
 <script>
-
-/* ─────────────────────────────────────────────
-   1) DATOS DE GRUPOS + PARTIDOS
-────────────────────────────────────────────── */
-
+/* 1) DATOS DE GRUPOS + FECHAS */
 const groups = {
-"A":[{name:"México",flag:"https://flagcdn.com/w20/mx.png"},
-     {name:"Sudáfrica",flag:"https://flagcdn.com/w20/za.png"},
-     {name:"Corea del Sur",flag:"https://flagcdn.com/w20/kr.png"},
-     {name:"República Checa",flag:"https://flagcdn.com/w20/cz.png"}],
-"B":[{name:"Canadá",flag:"https://flagcdn.com/w20/ca.png"},
-     {name:"Bosnia y Herzegovina",flag:"https://flagcdn.com/w20/ba.png"},
-     {name:"Catar",flag:"https://flagcdn.com/w20/qa.png"},
-     {name:"Suiza",flag:"https://flagcdn.com/w20/ch.png"}],
-"C":[{name:"Brasil",flag:"https://flagcdn.com/w20/br.png"},
-     {name:"Marruecos",flag:"https://flagcdn.com/w20/ma.png"},
-     {name:"Haití",flag:"https://flagcdn.com/w20/ht.png"},
-     {name:"Escocia",flag:"https://flagcdn.com/w20/gb-sct.png"}],
-"D":[{name:"EEUU",flag:"https://flagcdn.com/w20/us.png"},
-     {name:"Paraguay",flag:"https://flagcdn.com/w20/py.png"},
-     {name:"Australia",flag:"https://flagcdn.com/w20/au.png"},
-     {name:"Turquía",flag:"https://flagcdn.com/w20/tr.png"}],
-"E":[{name:"Alemania",flag:"https://flagcdn.com/w20/de.png"},
-     {name:"Curaçao",flag:"https://flagcdn.com/w20/cw.png"},
-     {name:"Costa de Marfil",flag:"https://flagcdn.com/w20/ci.png"},
-     {name:"Ecuador",flag:"https://flagcdn.com/w20/ec.png"}],
-"F":[{name:"Países Bajos",flag:"https://flagcdn.com/w20/nl.png"},
-     {name:"Japón",flag:"https://flagcdn.com/w20/jp.png"},
-     {name:"Suecia",flag:"https://flagcdn.com/w20/se.png"},
-     {name:"Túnez",flag:"https://flagcdn.com/w20/tn.png"}],
-"G":[{name:"Bélgica",flag:"https://flagcdn.com/w20/be.png"},
-     {name:"Egipto",flag:"https://flagcdn.com/w20/eg.png"},
-     {name:"Irán",flag:"https://flagcdn.com/w20/ir.png"},
-     {name:"Nueva Zelanda",flag:"https://flagcdn.com/w20/nz.png"}],
-"H":[{name:"España",flag:"https://flagcdn.com/w20/es.png"},
-     {name:"Cabo Verde",flag:"https://flagcdn.com/w20/cv.png"},
-     {name:"Arabia Saudita",flag:"https://flagcdn.com/w20/sa.png"},
-     {name:"Uruguay",flag:"https://flagcdn.com/w20/uy.png"}],
-"I":[{name:"Francia",flag:"https://flagcdn.com/w20/fr.png"},
-     {name:"Senegal",flag:"https://flagcdn.com/w20/sn.png"},
-     {name:"Irak",flag:"https://flagcdn.com/w20/iq.png"},
-     {name:"Noruega",flag:"https://flagcdn.com/w20/no.png"}],
-"J":[{name:"Argentina",flag:"https://flagcdn.com/w20/ar.png"},
-     {name:"Argelia",flag:"https://flagcdn.com/w20/dz.png"},
-     {name:"Austria",flag:"https://flagcdn.com/w20/at.png"},
-     {name:"Jordania",flag:"https://flagcdn.com/w20/jo.png"}],
-"K":[{name:"Portugal",flag:"https://flagcdn.com/w20/pt.png"},
-     {name:"República Democrática del Congo",flag:"https://flagcdn.com/w20/cd.png"},
-     {name:"Uzbekistán",flag:"https://flagcdn.com/w20/uz.png"},
-     {name:"Colombia",flag:"https://flagcdn.com/w20/co.png"}],
-"L":[{name:"Inglaterra",flag:"https://flagcdn.com/w20/gb-eng.png"},
-     {name:"Croacia",flag:"https://flagcdn.com/w20/hr.png"},
-     {name:"Ghana",flag:"https://flagcdn.com/w20/gh.png"},
-     {name:"Panamá",flag:"https://flagcdn.com/w20/pa.png"}]
+"A":[{name:"México",flag:"[flagcdn.com](https://flagcdn.com/w20/mx.png)"},
+     {name:"Sudáfrica",flag:"[flagcdn.com](https://flagcdn.com/w20/za.png)"},
+     {name:"Corea del Sur",flag:"[flagcdn.com](https://flagcdn.com/w20/kr.png)"},
+     {name:"República Checa",flag:"[flagcdn.com](https://flagcdn.com/w20/cz.png)"}],
+"B":[{name:"Canadá",flag:"[flagcdn.com](https://flagcdn.com/w20/ca.png)"},
+     {name:"Bosnia y Herzegovina",flag:"[flagcdn.com](https://flagcdn.com/w20/ba.png)"},
+     {name:"Catar",flag:"[flagcdn.com](https://flagcdn.com/w20/qa.png)"},
+     {name:"Suiza",flag:"[flagcdn.com](https://flagcdn.com/w20/ch.png)"}],
+"C":[{name:"Brasil",flag:"[flagcdn.com](https://flagcdn.com/w20/br.png)"},
+     {name:"Marruecos",flag:"[flagcdn.com](https://flagcdn.com/w20/ma.png)"},
+     {name:"Haití",flag:"[flagcdn.com](https://flagcdn.com/w20/ht.png)"},
+     {name:"Escocia",flag:"[flagcdn.com](https://flagcdn.com/w20/gb-sct.png)"}],
+"D":[{name:"EEUU",flag:"[flagcdn.com](https://flagcdn.com/w20/us.png)"},
+     {name:"Paraguay",flag:"[flagcdn.com](https://flagcdn.com/w20/py.png)"},
+     {name:"Australia",flag:"[flagcdn.com](https://flagcdn.com/w20/au.png)"},
+     {name:"Turquía",flag:"[flagcdn.com](https://flagcdn.com/w20/tr.png)"}],
+"E":[{name:"Alemania",flag:"[flagcdn.com](https://flagcdn.com/w20/de.png)"},
+     {name:"Curaçao",flag:"[flagcdn.com](https://flagcdn.com/w20/cw.png)"},
+     {name:"Costa de Marfil",flag:"[flagcdn.com](https://flagcdn.com/w20/ci.png)"},
+     {name:"Ecuador",flag:"[flagcdn.com](https://flagcdn.com/w20/ec.png)"}],
+"F":[{name:"Países Bajos",flag:"[flagcdn.com](https://flagcdn.com/w20/nl.png)"},
+     {name:"Japón",flag:"[flagcdn.com](https://flagcdn.com/w20/jp.png)"},
+     {name:"Suecia",flag:"[flagcdn.com](https://flagcdn.com/w20/se.png)"},
+     {name:"Túnez",flag:"[flagcdn.com](https://flagcdn.com/w20/tn.png)"}],
+"G":[{name:"Bélgica",flag:"[flagcdn.com](https://flagcdn.com/w20/be.png)"},
+     {name:"Egipto",flag:"[flagcdn.com](https://flagcdn.com/w20/eg.png)"},
+     {name:"Irán",flag:"[flagcdn.com](https://flagcdn.com/w20/ir.png)"},
+     {name:"Nueva Zelanda",flag:"[flagcdn.com](https://flagcdn.com/w20/nz.png)"}],
+"H":[{name:"España",flag:"[flagcdn.com](https://flagcdn.com/w20/es.png)"},
+     {name:"Cabo Verde",flag:"[flagcdn.com](https://flagcdn.com/w20/cv.png)"},
+     {name:"Arabia Saudita",flag:"[flagcdn.com](https://flagcdn.com/w20/sa.png)"},
+     {name:"Uruguay",flag:"[flagcdn.com](https://flagcdn.com/w20/uy.png)"}],
+"I":[{name:"Francia",flag:"[flagcdn.com](https://flagcdn.com/w20/fr.png)"},
+     {name:"Senegal",flag:"[flagcdn.com](https://flagcdn.com/w20/sn.png)"},
+     {name:"Irak",flag:"[flagcdn.com](https://flagcdn.com/w20/iq.png)"},
+     {name:"Noruega",flag:"[flagcdn.com](https://flagcdn.com/w20/no.png)"}],
+"J":[{name:"Argentina",flag:"[flagcdn.com](https://flagcdn.com/w20/ar.png)"},
+     {name:"Argelia",flag:"[flagcdn.com](https://flagcdn.com/w20/dz.png)"},
+     {name:"Austria",flag:"[flagcdn.com](https://flagcdn.com/w20/at.png)"},
+     {name:"Jordania",flag:"[flagcdn.com](https://flagcdn.com/w20/jo.png)"}],
+"K":[{name:"Portugal",flag:"[flagcdn.com](https://flagcdn.com/w20/pt.png)"},
+     {name:"República Democrática del Congo",flag:"[flagcdn.com](https://flagcdn.com/w20/cd.png)"},
+     {name:"Uzbekistán",flag:"[flagcdn.com](https://flagcdn.com/w20/uz.png)"},
+     {name:"Colombia",flag:"[flagcdn.com](https://flagcdn.com/w20/co.png)"}],
+"L":[{name:"Inglaterra",flag:"[flagcdn.com](https://flagcdn.com/w20/gb-eng.png)"},
+     {name:"Croacia",flag:"[flagcdn.com](https://flagcdn.com/w20/hr.png)"},
+     {name:"Ghana",flag:"[flagcdn.com](https://flagcdn.com/w20/gh.png)"},
+     {name:"Panamá",flag:"[flagcdn.com](https://flagcdn.com/w20/pa.png)"}]
 };
-
 const dates = {
   "A":["2026-06-11","2026-06-11","2026-06-18","2026-06-18","2026-06-24","2026-06-24"],
   "B":["2026-06-12","2026-06-13","2026-06-18","2026-06-18","2026-06-24","2026-06-24"],
@@ -104,10 +99,7 @@ const dates = {
   "L":["2026-06-17","2026-06-17","2026-06-23","2026-06-23","2026-06-27","2026-06-27"]
 };
 
-/* ─────────────────────────────────────────────
-   2) GENERAR PARTIDOS EN HTML
-────────────────────────────────────────────── */
-
+/* 2) GENERAR PARTIDOS EN HTML */
 const matches = [];
 for(const g in groups){
   const t = groups[g];
@@ -127,7 +119,6 @@ for(const g in groups){
   div.innerHTML = `<h2 style="text-align:center;">Grupo ${g}</h2>`;
   matches.filter(m=>m.group===g).forEach(m=>{
     const id = m.group+"_"+m.home.name.replace(/\s/g,'')+"_"+m.away.name.replace(/\s/g,'');
-
     div.innerHTML += `
       <div class="date">${m.date}</div>
       <div class="match">
@@ -145,10 +136,7 @@ for(const g in groups){
   container.appendChild(div);
 }
 
-/* ─────────────────────────────────────────────
-   3) FUNCIONES DE CSV
-────────────────────────────────────────────── */
-
+/* 3) CSV AUTOMÁTICO (UTF-8 con BOM) */
 function saveUserBet(){
   const username = document.getElementById("username").value.trim();
   if(!username){ alert("Introduce tu nombre."); return; }
@@ -180,10 +168,7 @@ function saveUserBet(){
   URL.revokeObjectURL(url);
 }
 
-/* ─────────────────────────────────────────────
-   4) CLASIFICACIÓN INICIAL POR GRUPOS
-────────────────────────────────────────────── */
-
+/* 4) CLASIFICACIÓN INICIAL POR GRUPOS */
 let standingsBeforeTiebreak = {};
 let pointsBeforeTiebreak = {};
 
@@ -223,7 +208,7 @@ function calculateQualified(){
 
     pointsBeforeTiebreak[g] = points;
 
-    // DETECCIÓN CORRECTA DE BLOQUES
+    // Detectar bloques (con índices)
     tiedGroups[g] = detectTieBlocks(sorted,points);
   }
 
@@ -233,70 +218,66 @@ function calculateQualified(){
   showTiebreakUI(tiedGroups);
 }
 
-/* ─────────────────────────────────────────────
-   5) DETECTAR BLOQUES DE EMPATE EN GRUPOS
-────────────────────────────────────────────── */
-
+/* 5) DETECTAR BLOQUES DE EMPATE EN GRUPOS (con índices) */
 function detectTieBlocks(sorted, points){
   const blocks = [];
   let start = 0;
 
-  for(let i=1;i<sorted.length;i++){
-    const prev = sorted[i-1].name;
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = sorted[i - 1].name;
     const curr = sorted[i].name;
 
-    if(points[prev] !== points[curr]){
-      if(i-1 > start){ // hubo bloque de tamaño >=2
+    if (points[prev] !== points[curr]) {
+      if (i - 1 > start) {
         const names = sorted.slice(start, i).map(t => t.name);
-        blocks.push({ names, startIndex: start, endIndex: i-1 });
+        blocks.push({ names, startIndex: start, endIndex: i - 1 });
       }
       start = i;
     }
   }
-  // cerrar bloque final si aplica
-  if(sorted.length-1 > start){
+
+  if (sorted.length - 1 > start) {
     const names = sorted.slice(start, sorted.length).map(t => t.name);
-    blocks.push({ names, startIndex: start, endIndex: sorted.length-1 });
+    blocks.push({ names, startIndex: start, endIndex: sorted.length - 1 });
   }
 
   return blocks;
 }
 
-
-/* ─────────────────────────────────────────────
-   6) UI DE DESEMPATES POR GRUPO
-────────────────────────────────────────────── */
-
+/* 6) UI DE DESEMPATES POR GRUPO */
 function showTiebreakUI(tiedGroups){
   let html="<h2>Desempates de Grupos</h2>";
   let has=false;
 
   for(const g in tiedGroups){
-    if(!tiedGroups[g] || tiedGroups[g].length===0) continue;
+    const blocks = tiedGroups[g];
+    if(!blocks || blocks.length===0) continue;
 
     has=true;
     html+=`<h3>Grupo ${g}</h3>`;
 
-    tiedGroups[g].forEach((block,i)=>{
-      if(block.length===2){
+    blocks.forEach((block,i)=>{
+      const list = block.names;
+
+      if(list.length===2){
         const id=`tiebreak_${g}_${i}`;
         html+=`
-          <p>${block[0]} y ${block[1]} han empatado.</p>
+          <p>${list[0]} y ${list[1]} han empatado.</p>
           ¿Quién queda por encima?<br>
           <select id="${id}">
-            <option value="${block[0]}">${block[0]}</option>
-            <option value="${block[1]}">${block[1]}</option>
+            <option value="${list[0]}">${list[0]}</option>
+            <option value="${list[1]}">${list[1]}</option>
           </select><br><br>
         `;
       } else {
-        html+=`<p>Han empatado: <b>${block.join(", ")}</b></p><p>Define el orden:</p>`;
-        block.forEach((t,pos)=>{
+        html+=`<p>Han empatado: <b>${list.join(", ")}</b></p><p>Define el orden:</p>`;
+        list.forEach((t,pos)=>{
           const id=`tiebreak_${g}_${i}_${pos}`;
           html+=`
             Posición ${pos+1}:
             <select class="tie-select" id="${id}">
               <option value="">-</option>
-              ${block.map(x=>`<option value="${x}">${x}</option>`).join("")}
+              ${list.map(x=>`<option value="${x}">${x}</option>`).join("")}
             </select><br>
           `;
         });
@@ -316,73 +297,60 @@ function showTiebreakUI(tiedGroups){
   enforceUniqueOrder();
 }
 
-/* ─────────────────────────────────────────────
-   7) APLICAR DESEMPATE DE GRUPOS
-────────────────────────────────────────────── */
-
+/* 7) APLICAR DESEMPATE DE GRUPOS (solo segmento del bloque) */
 function applyGroupTiebreaks(){
   let final = JSON.parse(JSON.stringify(standingsBeforeTiebreak));
 
-  for(const g in final){
+  for (const g in final) {
     const arr = final[g];
-    const blocks = detectTieBlocks(arr, pointsBeforeTiebreak[g]); // ahora devuelve {names,startIndex,endIndex}
+    const blocks = detectTieBlocks(arr, pointsBeforeTiebreak[g]); // {names, startIndex, endIndex}
 
     blocks.forEach((block, i) => {
       const { names, startIndex, endIndex } = block;
 
-      // construir el nuevo orden SOLO para el segmento [startIndex..endIndex]
       let newSegment = [];
 
-      if(names.length === 2){
+      if (names.length === 2) {
         const id = `tiebreak_${g}_${i}`;
         const winner = document.getElementById(id)?.value;
-        if(!winner){ alert(`Falta elegir ganador en el Grupo ${g}`); throw new Error("tiebreak missing"); }
+        if (!winner) { alert(`Falta elegir ganador en el Grupo ${g}`); throw new Error("tiebreak missing"); }
         const loser = names.find(n => n !== winner);
 
-        // mapear a objetos standings manteniendo sus puntos ya calculados
-        const winnerObj = arr.slice(startIndex, endIndex+1).find(t => t.name === winner);
-        const loserObj  = arr.slice(startIndex, endIndex+1).find(t => t.name === loser);
+        const segmentObjs = arr.slice(startIndex, endIndex + 1);
+        const winnerObj = segmentObjs.find(t => t.name === winner);
+        const loserObj  = segmentObjs.find(t => t.name === loser);
         newSegment = [winnerObj, loserObj];
 
       } else {
-        // 3 o 4 equipos: leer el orden completo
         const chosen = [];
-        for(let pos=0; pos<names.length; pos++){
+        for (let pos = 0; pos < names.length; pos++) {
           const id = `tiebreak_${g}_${i}_${pos}`;
           const sel = document.getElementById(id)?.value;
-          if(!sel){ alert(`Faltan posiciones por definir en el Grupo ${g}`); throw new Error("tiebreak missing"); }
-          if(chosen.includes(sel)){ alert("Cada equipo solo puede aparecer una vez."); throw new Error("duplicate"); }
+          if (!sel) { alert(`Faltan posiciones por definir en el Grupo ${g}`); throw new Error("tiebreak missing"); }
+          if (chosen.includes(sel)) { alert("Cada equipo solo puede aparecer una vez."); throw new Error("duplicate"); }
           chosen.push(sel);
         }
-        const segmentObjs = arr.slice(startIndex, endIndex+1);
+        const segmentObjs = arr.slice(startIndex, endIndex + 1);
         newSegment = chosen.map(name => segmentObjs.find(t => t.name === name));
       }
 
-      // reconstruir el array final del grupo SIN tocar lo demás
       const before = arr.slice(0, startIndex);
-      const after  = arr.slice(endIndex+1);
+      const after  = arr.slice(endIndex + 1);
       const rebuilt = before.concat(newSegment, after);
 
-      // escribir de vuelta en arr (mantener referencia original)
       arr.splice(0, arr.length, ...rebuilt);
     });
 
-    // reasignar posiciones numeradas al final
     arr.forEach((t, idx) => t.pos = idx + 1);
   }
 
-  // mostrar tabla final tras desempates de grupo
   showStandings(final);
 
-  // continuar con terceros y posible desempate del corte
+  // Pasar a terceros
   handleThirdPlaces(final);
 }
 
-
-/* ─────────────────────────────────────────────
-   8) MANEJO DE LOS TERCEROS Y SU EMPATE DE CORTE
-────────────────────────────────────────────── */
-
+/* 8) TERCEROS Y DESEMPATE DEL “CORTE” */
 function handleThirdPlaces(final){
   const direct=[];
   const thirds=[];
@@ -408,14 +376,13 @@ function handleThirdPlaces(final){
   displayBracket(direct.concat(top8));
 }
 
-/* BLOQUE PARA DETECTAR EMPATE DEL CORTE */
 function detectCutBlock(sortedThirds){
-  const cutoffPts = sortedThirds[7].pts;
+  if(sortedThirds.length < 8) return [];
+  const cutoffPts = sortedThirds[7].pts; // puntos del 8º
   const block = sortedThirds.filter(t=>t.pts===cutoffPts).map(t=>t.name);
   return block.length>1 ? block : [];
 }
 
-/* UI DE DESEMPATES DE TERCEROS */
 function showThirdPlaceTiebreakUI(block){
   let html=`<h2>Desempate entre 3º clasificados</h2>
             <p>Han empatado por las últimas plazas:</p>
@@ -449,7 +416,6 @@ function showThirdPlaceTiebreakUI(block){
   enforceThirdUnique();
 }
 
-/* APLICAR DESEMPATE DEL CORTE */
 function applyThirdCutTiebreak(blockStr){
   const block=blockStr.split("|");
   let order=[];
@@ -462,13 +428,12 @@ function applyThirdCutTiebreak(blockStr){
     for(let i=0;i<block.length;i++){
       const v=document.getElementById("third_cut_"+i).value;
       if(!v){ alert("Faltan posiciones."); return; }
+      if(order.includes(v)){ alert("Cada equipo solo una vez."); return; }
       order.push(v);
     }
   }
 
   const sorted = window.thirdsBeforeCut.slice();
-
-  const rest = sorted.filter(t=>!block.includes(t.name));
 
   const reconstructed=[];
   sorted.forEach(t=>{ if(!block.includes(t.name)) reconstructed.push(t); });
@@ -486,10 +451,7 @@ function applyThirdCutTiebreak(blockStr){
   displayBracket(window.directQualified.concat(top8));
 }
 
-/* ─────────────────────────────────────────────
-   9) DETECTORES ÚNICOS DE SELECTORES
-────────────────────────────────────────────── */
-
+/* 9) PROTEGER SELECTORES ÚNICOS */
 function enforceUniqueOrder(){
   const selects=document.querySelectorAll(".tie-select");
   selects.forEach(s=> s.addEventListener("change",()=>{
@@ -508,14 +470,11 @@ function enforceThirdUnique(){
     const all=[...parent.querySelectorAll(".third-tie")];
     const values=all.map(x=>x.value).filter(v=>v);
     const dup=values.filter((v,i)=> values.indexOf(v)!==i);
-    if(dup.length){ alert("Cada equipo una sola vez."); s.value=""; }
+    if(dup.length){ alert("Cada equipo solo una vez."); s.value=""; }
   }));
 }
 
-/* ─────────────────────────────────────────────
-   10) MOSTRAR CLASIFICACIONES Y BRACKET
-────────────────────────────────────────────── */
-
+/* 10) MOSTRAR CLASIFICACIONES Y BRACKET */
 function showStandings(table){
   let html="<h2>Clasificación por Grupos</h2>";
   for(const g in table){
@@ -538,8 +497,8 @@ function displayBracket(arr){
     JSON.stringify(arr,null,2)+
     "</pre>";
 }
-
 </script>
 </body>
 </html>
+
 
